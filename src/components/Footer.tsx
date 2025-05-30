@@ -31,6 +31,15 @@ export function Footer() {
             >
               NIPs on Nostr Spec
             </Link>
+            <a
+              href="https://gitlab.com/soapbox-pub/nostrnips"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors duration-300"
+            >
+              Source Code
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </div>
