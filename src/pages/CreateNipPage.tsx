@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -15,6 +15,7 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { ArrowLeft, Plus, X, AlertCircle, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { nip19 } from 'nostr-tools';
+import { slugify } from '@/lib/utils';
 
 export default function CreateNipPage() {
   const { user } = useCurrentUser();
@@ -26,6 +27,14 @@ export default function CreateNipPage() {
   const [content, setContent] = useState('');
   const [kinds, setKinds] = useState<string[]>([]);
   const [newKind, setNewKind] = useState('');
+  const [identifierManuallyEdited, setIdentifierManuallyEdited] = useState(false);
+
+  // Auto-generate identifier from title
+  useEffect(() => {
+    if (!identifierManuallyEdited && title) {
+      setIdentifier(slugify(title));
+    }
+  }, [title, identifierManuallyEdited]);
 
   if (!user) {
     return (
@@ -131,12 +140,15 @@ export default function CreateNipPage() {
                   <Input
                     id="identifier"
                     value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    onChange={(e) => {
+                      setIdentifier(e.target.value);
+                      setIdentifierManuallyEdited(true);
+                    }}
                     placeholder="e.g., custom-xyz-events"
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Unique identifier for this NIP (used in the naddr)
+                    Unique identifier for this NIP (used in the naddr). Auto-generated from title, but you can edit it.
                   </p>
                 </div>
               </div>
