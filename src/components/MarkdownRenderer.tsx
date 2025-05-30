@@ -2,6 +2,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github.css';
+import { CodeBlock } from '@/components/CodeBlock';
+import { HeaderWithAnchor } from '@/components/HeaderWithAnchor';
 
 interface MarkdownRendererProps {
   content: string;
@@ -10,7 +12,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
   return (
-    <div className={`prose prose-slate max-w-none dark:prose-invert ${className}`}>
+    <div className={`prose prose-slate prose-lg max-w-4xl mx-auto dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-p:mb-4 prose-p:leading-relaxed prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1 prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:border-0 prose-pre:p-4 prose-pre:rounded-lg prose-pre:my-4 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -23,30 +25,120 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
                 href={href}
                 target={isExternal ? '_blank' : undefined}
                 rel={isExternal ? 'noopener noreferrer' : undefined}
+                className="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
                 {...props}
               >
                 {children}
               </a>
             );
           },
-          // Custom code block styling
-          pre: ({ children, ...props }) => (
-            <pre className="bg-muted p-4 rounded-lg overflow-x-auto" {...props}>
+          // Custom paragraph styling
+          p: ({ children, ...props }) => (
+            <p className="mb-4 leading-relaxed text-base" {...props}>
               {children}
-            </pre>
+            </p>
+          ),
+          // Custom heading styling with anchors
+          h1: ({ children, ...props }) => (
+            <HeaderWithAnchor level={1} className="text-3xl font-bold mb-6 mt-8 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          h2: ({ children, ...props }) => (
+            <HeaderWithAnchor level={2} className="text-2xl font-bold mb-4 mt-8 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          h3: ({ children, ...props }) => (
+            <HeaderWithAnchor level={3} className="text-xl font-bold mb-3 mt-6 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          h4: ({ children, ...props }) => (
+            <HeaderWithAnchor level={4} className="text-lg font-bold mb-2 mt-4 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          h5: ({ children, ...props }) => (
+            <HeaderWithAnchor level={5} className="text-base font-bold mb-2 mt-4 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          h6: ({ children, ...props }) => (
+            <HeaderWithAnchor level={6} className="text-sm font-bold mb-2 mt-4 first:mt-0" {...props}>
+              {children}
+            </HeaderWithAnchor>
+          ),
+          // Custom code block with copy button
+          pre: ({ children, ...props }) => (
+            <CodeBlock {...props}>
+              {children}
+            </CodeBlock>
           ),
           // Custom inline code styling
           code: ({ children, className, ...props }) => {
             const isInline = !className;
+            if (isInline) {
+              return (
+                <code
+                  className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+            // For code blocks, don't add extra styling as it's handled by pre
             return (
-              <code
-                className={isInline ? "bg-muted px-1 py-0.5 rounded text-sm" : className}
-                {...props}
-              >
+              <code className={className} {...props}>
                 {children}
               </code>
             );
           },
+          // Custom list styling
+          ul: ({ children, ...props }) => (
+            <ul className="list-disc list-inside mb-4 space-y-1" {...props}>
+              {children}
+            </ul>
+          ),
+          ol: ({ children, ...props }) => (
+            <ol className="list-decimal list-inside mb-4 space-y-1" {...props}>
+              {children}
+            </ol>
+          ),
+          li: ({ children, ...props }) => (
+            <li className="mb-1" {...props}>
+              {children}
+            </li>
+          ),
+          // Custom blockquote styling
+          blockquote: ({ children, ...props }) => (
+            <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-4 text-gray-700 dark:text-gray-300" {...props}>
+              {children}
+            </blockquote>
+          ),
+          // Custom table styling
+          table: ({ children, ...props }) => (
+            <div className="overflow-x-auto my-4">
+              <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600" {...props}>
+                {children}
+              </table>
+            </div>
+          ),
+          th: ({ children, ...props }) => (
+            <th className="border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 px-4 py-2 text-left font-semibold" {...props}>
+              {children}
+            </th>
+          ),
+          td: ({ children, ...props }) => (
+            <td className="border border-gray-300 dark:border-gray-600 px-4 py-2" {...props}>
+              {children}
+            </td>
+          ),
+          // Custom horizontal rule styling
+          hr: ({ ...props }) => (
+            <hr className="my-8 border-gray-300 dark:border-gray-600" {...props} />
+          ),
         }}
       >
         {content}
