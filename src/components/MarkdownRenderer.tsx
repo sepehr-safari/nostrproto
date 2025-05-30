@@ -25,7 +25,7 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
                 href={href}
                 target={isExternal ? '_blank' : undefined}
                 rel={isExternal ? 'noopener noreferrer' : undefined}
-                className="text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-accent hover:text-accent/80 underline transition-colors duration-200"
                 {...props}
               >
                 {children}
