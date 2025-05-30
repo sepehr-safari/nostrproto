@@ -58,9 +58,23 @@ export default function CreateNipPage() {
   }
 
   const addKind = () => {
-    if (newKind && !kinds.includes(newKind)) {
-      setKinds([...kinds, newKind]);
+    const trimmedKind = newKind.trim();
+    
+    // Validate that it's a number
+    if (!trimmedKind) return;
+    
+    const kindNumber = parseInt(trimmedKind, 10);
+    if (isNaN(kindNumber) || kindNumber < 0 || !Number.isInteger(Number(trimmedKind))) {
+      toast.error('Event kind must be a valid non-negative integer');
+      return;
+    }
+    
+    const kindString = kindNumber.toString();
+    if (!kinds.includes(kindString)) {
+      setKinds([...kinds, kindString]);
       setNewKind('');
+    } else {
+      toast.error('This event kind is already added');
     }
   };
 
@@ -160,7 +174,12 @@ export default function CreateNipPage() {
                     value={newKind}
                     onChange={(e) => setNewKind(e.target.value)}
                     placeholder="e.g., 30000"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKind())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab' || e.key === ' ') {
+                        e.preventDefault();
+                        addKind();
+                      }
+                    }}
                   />
                   <Button type="button" onClick={addKind} size="sm">
                     <Plus className="h-4 w-4" />
@@ -183,7 +202,7 @@ export default function CreateNipPage() {
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Add event kinds that this NIP defines or relates to
+                  Add event kinds that this NIP defines or relates to. Press Enter, comma, Tab, or space to add. Must be valid numbers.
                 </p>
               </div>
 
