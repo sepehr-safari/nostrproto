@@ -36,8 +36,8 @@ export default function NipPage() {
     );
   }
 
-  // Check if it's an official NIP (2-digit number) or custom NIP (naddr)
-  const isOfficialNip = /^\d{2}$/.test(id);
+  // Check if it's an official NIP (2-character hex string) or custom NIP (naddr)
+  const isOfficialNip = /^[0-9A-F]{2}$/i.test(id);
   
   if (isOfficialNip) {
     return <OfficialNipView nipNumber={id} />;
