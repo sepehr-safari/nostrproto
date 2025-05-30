@@ -55,24 +55,7 @@ const Index = () => {
               </Link>
             </Button>
           </div>
-          
-          {/* Stats or features */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-8 sm:pt-12 max-w-4xl mx-auto px-4">
-            <div className="glass p-4 sm:p-6 rounded-xl text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-                {isLoadingOfficial ? '...' : officialNips?.length || '0'}
-              </div>
-              <div className="text-sm text-muted-foreground">Official NIPs</div>
-            </div>
-            <div className="glass p-4 sm:p-6 rounded-xl text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-accent mb-2">∞</div>
-              <div className="text-sm text-muted-foreground">Decentralized</div>
-            </div>
-            <div className="glass p-4 sm:p-6 rounded-xl text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">24/7</div>
-              <div className="text-sm text-muted-foreground">Always Online</div>
-            </div>
-          </div>
+
         </div>
 
         {/* Search */}
