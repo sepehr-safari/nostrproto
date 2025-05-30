@@ -73,7 +73,7 @@ export function KindInput({
               <button
                 type="button"
                 onClick={() => removeKind(kind)}
-                className="ml-1 hover:text-destructive"
+                className="ml-1 hover:text-destructive flex items-center justify-center"
               >
                 <X className="h-3 w-3" />
               </button>
