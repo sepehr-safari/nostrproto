@@ -3,6 +3,8 @@
   "short_name": "NIPs",
   "description": "Discover and publish Nostr Implementation Possibilities",
   "start_url": "/",
+  "scope": "/",
+  "id": "https://nostrnips.com/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#8b5cf6",
