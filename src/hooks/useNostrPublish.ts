@@ -22,7 +22,7 @@ export function useNostrPublish() {
         // Add the client tag if it doesn't exist
         if (!tags.some((tag) => tag[0] === "client")) {
           // FIXME: Replace "mkstack" with the actual client name
-          tags.push(["client", "mkstack"]);
+          tags.push(["client", "NIPs on Nostr"]);
         }
 
         const event = await user.signer.signEvent({
@@ -33,6 +33,7 @@ export function useNostrPublish() {
         });
 
         await nostr.event(event, { signal: AbortSignal.timeout(5000) });
+        return event;
       } else {
         throw new Error("User is not logged in");
       }
