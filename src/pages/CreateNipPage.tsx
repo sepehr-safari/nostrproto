@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
+import { KindInput } from '@/components/KindInput';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { ArrowLeft, Plus, X, AlertCircle, Save } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { nip19 } from 'nostr-tools';
 import { slugify } from '@/lib/utils';
@@ -26,7 +26,6 @@ export default function CreateNipPage() {
   const [identifier, setIdentifier] = useState('');
   const [content, setContent] = useState('');
   const [kinds, setKinds] = useState<string[]>([]);
-  const [newKind, setNewKind] = useState('');
   const [identifierManuallyEdited, setIdentifierManuallyEdited] = useState(false);
 
   // Auto-generate identifier from title
@@ -57,30 +56,7 @@ export default function CreateNipPage() {
     );
   }
 
-  const addKind = () => {
-    const trimmedKind = newKind.trim();
-    
-    // Validate that it's a number
-    if (!trimmedKind) return;
-    
-    const kindNumber = parseInt(trimmedKind, 10);
-    if (isNaN(kindNumber) || kindNumber < 0 || !Number.isInteger(Number(trimmedKind))) {
-      toast.error('Event kind must be a valid non-negative integer');
-      return;
-    }
-    
-    const kindString = kindNumber.toString();
-    if (!kinds.includes(kindString)) {
-      setKinds([...kinds, kindString]);
-      setNewKind('');
-    } else {
-      toast.error('This event kind is already added');
-    }
-  };
 
-  const removeKind = (kindToRemove: string) => {
-    setKinds(kinds.filter(k => k !== kindToRemove));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,44 +143,10 @@ export default function CreateNipPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Event Kinds (optional)</Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    value={newKind}
-                    onChange={(e) => setNewKind(e.target.value)}
-                    placeholder="e.g., 30000"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab' || e.key === ' ') {
-                        e.preventDefault();
-                        addKind();
-                      }
-                    }}
-                  />
-                  <Button type="button" onClick={addKind} size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {kinds.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {kinds.map(kind => (
-                      <Badge key={kind} variant="secondary" className="flex items-center space-x-1">
-                        <span>{kind}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeKind(kind)}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Add event kinds that this NIP defines or relates to. Press Enter, comma, Tab, or space to add. Must be valid numbers.
-                </p>
-              </div>
+              <KindInput
+                kinds={kinds}
+                onKindsChange={setKinds}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="content">Content *</Label>
