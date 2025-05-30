@@ -2,6 +2,8 @@
 
 A website for viewing official Nostr Implementation Possibilities (NIPs) and publishing custom NIPs on the Nostr network.
 
+🌐 **Live Site**: [https://nostrnips.com/](https://nostrnips.com/)
+
 ## Features
 
 ### Official NIPs
