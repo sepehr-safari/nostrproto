@@ -1,1 +1,1 @@
-../CONTEXT.md
+/home/alex/Projects/mkstack/CONTEXT.md
