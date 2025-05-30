@@ -193,7 +193,7 @@ export default function EditNipPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" asChild>
             <Link to={`/nip/${naddr}`}>

@@ -1,13 +1,21 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useMyNips } from '@/hooks/useMyNips';
+import { DeleteNipDialog } from '@/components/DeleteNipDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Plus, Edit, AlertCircle, FileText } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Plus, Edit, AlertCircle, FileText, MoreVertical, Trash2 } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { NostrEvent } from '@/types/nostr';
 
@@ -38,7 +46,7 @@ export default function MyNipsPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" asChild>
             <Link to="/">
@@ -117,6 +125,8 @@ export default function MyNipsPage() {
 }
 
 function MyNipCard({ event }: { event: NostrEvent }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
   const title = event.tags.find((tag: string[]) => tag[0] === 'title')?.[1] || 'Untitled NIP';
   const dTag = event.tags.find((tag: string[]) => tag[0] === 'd')?.[1] || '';
   const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
@@ -135,47 +145,74 @@ function MyNipCard({ event }: { event: NostrEvent }) {
     .substring(0, 200) + (event.content.length > 200 ? '...' : '');
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <CardTitle className="text-xl">
-              <Link to={`/nip/${naddr}`} className="hover:underline">
-                {title}
-              </Link>
-            </CardTitle>
+    <>
+      <Card className="hover:shadow-md transition-shadow">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <CardTitle className="text-xl">
+                <Link to={`/nip/${naddr}`} className="hover:underline">
+                  {title}
+                </Link>
+              </CardTitle>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline">Custom</Badge>
+                {kinds.length > 0 && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-sm text-muted-foreground">Kinds:</span>
+                    {kinds.slice(0, 3).map(kind => (
+                      <Badge key={kind} variant="secondary">{kind}</Badge>
+                    ))}
+                    {kinds.length > 3 && (
+                      <span className="text-sm text-muted-foreground">+{kinds.length - 3} more</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline">Custom</Badge>
-              {kinds.length > 0 && (
-                <div className="flex items-center space-x-1">
-                  <span className="text-sm text-muted-foreground">Kinds:</span>
-                  {kinds.slice(0, 3).map(kind => (
-                    <Badge key={kind} variant="secondary">{kind}</Badge>
-                  ))}
-                  {kinds.length > 3 && (
-                    <span className="text-sm text-muted-foreground">+{kinds.length - 3} more</span>
-                  )}
-                </div>
-              )}
+              <Button size="sm" asChild>
+                <Link to={`/edit/${naddr}`}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setDeleteDialogOpen(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete NIP
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-          <Button size="sm" asChild>
-            <Link to={`/edit/${naddr}`}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Link>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground text-sm mb-4">
-          {contentPreview}
-        </p>
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Created {new Date(event.created_at * 1000).toLocaleDateString()}</span>
-          <span>ID: {dTag}</span>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm mb-4">
+            {contentPreview}
+          </p>
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Created {new Date(event.created_at * 1000).toLocaleDateString()}</span>
+            <span>ID: {dTag}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <DeleteNipDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        event={event}
+        title={title}
+      />
+    </>
   );
 }

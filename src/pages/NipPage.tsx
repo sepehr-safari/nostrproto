@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { DeleteNipDialog } from '@/components/DeleteNipDialog';
 import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useCustomNip } from '@/hooks/useCustomNip';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -9,7 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, ArrowLeft, Edit, ExternalLink } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -132,6 +140,7 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { data: event, isLoading, error } = useCustomNip(naddr);
   const author = useAuthor(event?.pubkey || '');
   
@@ -201,12 +210,30 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             </Link>
           </Button>
           {isOwner && (
-            <Button asChild>
-              <Link to={`/edit/${naddr}`}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit NIP
-              </Link>
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button asChild>
+                <Link to={`/edit/${naddr}`}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit NIP
+                </Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setDeleteDialogOpen(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete NIP
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
         </div>
         
@@ -250,6 +277,15 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             <MarkdownRenderer content={event!.content} />
           </CardContent>
         </Card>
+
+        {isOwner && event && (
+          <DeleteNipDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            event={event}
+            title={title}
+          />
+        )}
       </div>
     </Layout>
   );
