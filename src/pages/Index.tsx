@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { useRecentCustomNips } from '@/hooks/useRecentCustomNips';
+import { useOfficialNips } from '@/hooks/useOfficialNips';
 import { useAuthor } from '@/hooks/useAuthor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,77 +9,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, BookOpen, Users, Plus } from 'lucide-react';
+import { Search, BookOpen, Users, Plus, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import { nip19 } from 'nostr-tools';
 import { NostrEvent } from '@/types/nostr';
 
-// List of official NIPs (commonly referenced ones)
-const OFFICIAL_NIPS = [
-  { number: '01', title: 'Basic protocol flow description' },
-  { number: '02', title: 'Contact List and Petnames' },
-  { number: '03', title: 'OpenTimestamps Attestations for Events' },
-  { number: '04', title: 'Encrypted Direct Message' },
-  { number: '05', title: 'Mapping Nostr keys to DNS-based internet identifiers' },
-  { number: '06', title: 'Basic key derivation from mnemonic seed phrase' },
-  { number: '07', title: 'window.nostr capability for web browsers' },
-  { number: '08', title: 'Handling Mentions' },
-  { number: '09', title: 'Event Deletion' },
-  { number: '10', title: 'Conventions for clients\' use of e and p tags in text events' },
-  { number: '11', title: 'Relay Information Document' },
-  { number: '12', title: 'Generic Tag Queries' },
-  { number: '13', title: 'Proof of Work' },
-  { number: '14', title: 'Subject tag in text events' },
-  { number: '15', title: 'Nostr Marketplace (for resilient marketplaces)' },
-  { number: '16', title: 'Event Treatment' },
-  { number: '18', title: 'Reposts' },
-  { number: '19', title: 'bech32-encoded entities' },
-  { number: '20', title: 'Command Results' },
-  { number: '21', title: 'nostr: URI scheme' },
-  { number: '23', title: 'Long-form Content' },
-  { number: '25', title: 'Reactions' },
-  { number: '26', title: 'Delegated Event Signing' },
-  { number: '27', title: 'Text Note References' },
-  { number: '28', title: 'Public Chat' },
-  { number: '30', title: 'Custom Emoji' },
-  { number: '31', title: 'Dealing with Unknown Events' },
-  { number: '32', title: 'Labeling' },
-  { number: '33', title: 'Parameterized Replaceable Events' },
-  { number: '36', title: 'Sensitive Content' },
-  { number: '38', title: 'User Statuses' },
-  { number: '39', title: 'External Identities in Profiles' },
-  { number: '40', title: 'Expiration Timestamp' },
-  { number: '42', title: 'Authentication of clients to relays' },
-  { number: '44', title: 'Versioned Encryption' },
-  { number: '45', title: 'Counting results' },
-  { number: '46', title: 'Nostr Connect' },
-  { number: '47', title: 'Wallet Connect' },
-  { number: '48', title: 'Proxy Tags' },
-  { number: '50', title: 'Search Capability' },
-  { number: '51', title: 'Lists' },
-  { number: '52', title: 'Calendar Events' },
-  { number: '53', title: 'Live Activities' },
-  { number: '56', title: 'Reporting' },
-  { number: '57', title: 'Lightning Zaps' },
-  { number: '58', title: 'Badges' },
-  { number: '65', title: 'Relay List Metadata' },
-  { number: '72', title: 'Moderated Communities' },
-  { number: '75', title: 'Zap Goals' },
-  { number: '78', title: 'Application-specific data' },
-  { number: '84', title: 'Highlights' },
-  { number: '89', title: 'Recommended Application Handlers' },
-  { number: '90', title: 'Data Vending Machines' },
-  { number: '94', title: 'File Metadata' },
-  { number: '96', title: 'HTTP File Storage Integration' },
-  { number: '98', title: 'HTTP Auth' },
-  { number: '99', title: 'Classified Listings' },
-];
-
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: recentNips, isLoading: isLoadingRecent } = useRecentCustomNips();
+  const { data: officialNips, isLoading: isLoadingOfficial, error: officialNipsError } = useOfficialNips();
 
-  const filteredOfficialNips = OFFICIAL_NIPS.filter(
+  const filteredOfficialNips = (officialNips || []).filter(
     nip => 
       nip.number.includes(searchTerm) || 
       nip.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -118,7 +59,9 @@ const Index = () => {
           {/* Stats or features */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-8 sm:pt-12 max-w-4xl mx-auto px-4">
             <div className="glass p-4 sm:p-6 rounded-xl text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">100+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
+                {isLoadingOfficial ? '...' : officialNips?.length || '0'}
+              </div>
               <div className="text-sm text-muted-foreground">Official NIPs</div>
             </div>
             <div className="glass p-4 sm:p-6 rounded-xl text-center">
@@ -157,21 +100,60 @@ const Index = () => {
             </div>
             
             <div className="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto mobile-safe">
-              {filteredOfficialNips.map((nip) => (
-                <Card key={nip.number} className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
-                  <CardContent className="p-4">
-                    <Link to={`/nip/${nip.number}`} className="block">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
-                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">{nip.title}</p>
-                        </div>
-                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Official</Badge>
+              {isLoadingOfficial ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
                       </div>
-                    </Link>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : officialNipsError ? (
+                <Card>
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    <div className="flex items-center justify-center space-x-2 text-destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Failed to load official NIPs</span>
+                    </div>
                   </CardContent>
                 </Card>
-              ))}
+              ) : filteredOfficialNips.length > 0 ? (
+                filteredOfficialNips.map((nip) => (
+                  <Card key={nip.number} className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
+                    <CardContent className="p-4">
+                      <Link to={`/nip/${nip.number}`} className="block">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
+                            <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">{nip.title}</p>
+                            {nip.note && (
+                              <p className="text-xs text-muted-foreground/70 italic">{nip.note}</p>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-1 flex-shrink-0 ml-2">
+                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
+                            {nip.unrecommended && (
+                              <Badge variant="destructive" className="text-xs">Unrecommended</Badge>
+                            )}
+                            {nip.deprecated && (
+                              <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">Deprecated</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    No NIPs found matching your search.
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
 
