@@ -226,12 +226,11 @@ export default function EditNipPage() {
                   <Input
                     id="identifier"
                     value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="e.g., custom-xyz-events"
-                    required
+                    disabled
+                    className="bg-muted/50 cursor-not-allowed"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Changing this will create a new NIP with a different naddr
+                    The identifier cannot be changed. To use a different identifier, delete this NIP and create a new one.
                   </p>
                 </div>
               </div>
