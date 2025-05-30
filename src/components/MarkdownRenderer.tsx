@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
   return (
-    <div className={`prose prose-slate prose-lg max-w-4xl mx-auto dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-p:mb-4 prose-p:leading-relaxed prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1 prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-pre:bg-gray-100 prose-pre:dark:bg-gray-800 prose-pre:border-0 prose-pre:p-4 prose-pre:rounded-lg prose-pre:my-4 ${className}`}>
+    <div className={`prose prose-slate prose-lg max-w-4xl mx-auto dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-p:mb-4 prose-p:leading-relaxed prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1 prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-pre:bg-muted/50 prose-pre:border prose-pre:border-primary/20 prose-pre:p-4 prose-pre:rounded-lg prose-pre:my-4 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -81,7 +81,7 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
             if (isInline) {
               return (
                 <code
-                  className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
+                  className="bg-primary/10 text-accent px-1.5 py-0.5 rounded text-sm font-mono border border-primary/20"
                   {...props}
                 >
                   {children}

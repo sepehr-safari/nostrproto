@@ -107,7 +107,7 @@ const Index = () => {
                 Create Custom NIP
               </Link>
             </Button>
-            <Button variant="outline" size="lg" asChild className="glass border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
+            <Button variant="outline" size="lg" asChild className="glass border-primary/30 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-300">
               <Link to="/my-nips">
                 <Users className="h-5 w-5 mr-2" />
                 My NIPs

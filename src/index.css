@@ -1,5 +1,5 @@
-/* Syntax highlighting for code blocks */
-@import 'highlight.js/styles/github.css';
+/* Syntax highlighting for code blocks - dark theme */
+@import 'highlight.js/styles/github-dark.css';
 
 @tailwind base;
 @tailwind components;
@@ -195,5 +195,59 @@
   @keyframes holographic {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
+  }
+
+  /* Custom code block styling to match our theme */
+  .prose pre {
+    background-color: hsl(var(--muted)) !important;
+    border: 1px solid hsl(var(--primary) / 0.2) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .prose pre code {
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Override highlight.js colors for our theme */
+  .hljs {
+    background: hsl(var(--muted)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-literal,
+  .hljs-section,
+  .hljs-link {
+    color: hsl(var(--primary)) !important;
+  }
+
+  .hljs-string,
+  .hljs-title,
+  .hljs-name,
+  .hljs-type,
+  .hljs-attribute,
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-addition,
+  .hljs-variable,
+  .hljs-template-tag,
+  .hljs-template-variable {
+    color: hsl(var(--accent)) !important;
+  }
+
+  .hljs-comment,
+  .hljs-quote,
+  .hljs-deletion,
+  .hljs-meta {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  .hljs-number,
+  .hljs-regexp,
+  .hljs-built_in,
+  .hljs-builtin-name {
+    color: hsl(var(--primary) / 0.8) !important;
   }
 }

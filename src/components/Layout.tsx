@@ -24,13 +24,13 @@ export function Layout({ children }: LayoutProps) {
           </Link>
           
           <nav className="flex items-center space-x-2">
-            <Button variant="ghost" asChild className="hover:bg-primary/10 hover:text-primary transition-all duration-300">
+            <Button variant="ghost" asChild className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
               <Link to="/create">
                 <Plus className="h-4 w-4 mr-2" />
                 Create NIP
               </Link>
             </Button>
-            <Button variant="ghost" asChild className="hover:bg-primary/10 hover:text-primary transition-all duration-300">
+            <Button variant="ghost" asChild className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
               <Link to="/my-nips">
                 <User className="h-4 w-4 mr-2" />
                 My NIPs
