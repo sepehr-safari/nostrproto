@@ -99,6 +99,10 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     background-image: 
@@ -106,6 +110,14 @@
       radial-gradient(at 80% 0%, hsl(var(--gradient-via)) 0px, transparent 50%),
       radial-gradient(at 0% 50%, hsl(var(--gradient-to)) 0px, transparent 50%);
     background-attachment: fixed;
+    overflow-x: hidden;
+    min-width: 320px; /* Minimum mobile width */
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  .container {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
@@ -197,16 +209,70 @@
     50% { background-position: 100% 50%; }
   }
 
+  /* Mobile responsive improvements */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    /* Ensure cards don't overflow on mobile */
+    .card-content {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    
+    /* Improve button spacing on mobile */
+    .mobile-button-stack {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .mobile-button-stack > * {
+      width: 100%;
+    }
+    
+    /* Improve text readability on mobile */
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.2;
+      word-wrap: break-word;
+    }
+    
+    /* Ensure proper spacing for mobile navigation */
+    .mobile-nav-spacing {
+      gap: 0.5rem;
+    }
+    
+    /* Prevent horizontal scroll on very small screens */
+    .mobile-safe {
+      max-width: calc(100vw - 2rem);
+      overflow-x: auto;
+    }
+  }
+  
+  /* Ensure touch targets are large enough on mobile */
+  @media (max-width: 768px) {
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
   /* Custom code block styling to match our theme */
   .prose pre {
     background-color: hsl(var(--muted)) !important;
     border: 1px solid hsl(var(--primary) / 0.2) !important;
     color: hsl(var(--foreground)) !important;
+    overflow-x: auto;
+    max-width: 100%;
   }
 
   .prose pre code {
     background-color: transparent !important;
     color: hsl(var(--foreground)) !important;
+    white-space: pre;
+    word-wrap: normal;
   }
 
   /* Override highlight.js colors for our theme */

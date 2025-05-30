@@ -56,7 +56,8 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
           <Button variant="ghost" asChild>
             <Link to="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Back</span>
             </Link>
           </Button>
           <Card>
@@ -115,7 +116,8 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
               rel="noopener noreferrer"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              View on GitHub
+              <span className="hidden sm:inline">View on GitHub</span>
+              <span className="sm:hidden">GitHub</span>
             </a>
           </Button>
         </div>
@@ -124,12 +126,12 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
           <CardHeader className="border-b border-primary/10">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <CardTitle className="text-3xl gradient-text">NIP-{nipNumber}</CardTitle>
+                <CardTitle className="text-2xl sm:text-3xl gradient-text">NIP-{nipNumber}</CardTitle>
                 <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Official Protocol</Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-8">
             <MarkdownRenderer content={data!.content} />
           </CardContent>
         </Card>
@@ -210,11 +212,12 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             </Link>
           </Button>
           {isOwner && (
-            <div className="flex items-center space-x-2">
-              <Button asChild>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+              <Button asChild size="sm" className="sm:size-default">
                 <Link to={`/edit/${naddr}`}>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit NIP
+                  <span className="hidden sm:inline">Edit NIP</span>
+                  <span className="sm:hidden">Edit</span>
                 </Link>
               </Button>
               <DropdownMenu>
@@ -241,11 +244,11 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
           <CardHeader className="border-b border-accent/10">
             <div className="flex items-center justify-between">
               <div className="space-y-3">
-                <CardTitle className="text-3xl gradient-text">{title}</CardTitle>
-                <div className="flex items-center space-x-2 flex-wrap gap-2">
+                <CardTitle className="text-2xl sm:text-3xl gradient-text break-words">{title}</CardTitle>
+                <div className="flex items-center flex-wrap gap-2">
                   <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">Custom Protocol</Badge>
                   {kinds.length > 0 && (
-                    <div className="flex items-center space-x-1 flex-wrap gap-1">
+                    <div className="flex items-center flex-wrap gap-1">
                       <span className="text-sm text-muted-foreground">Kinds:</span>
                       {kinds.map(kind => (
                         <Badge key={kind} variant="secondary" className="bg-primary/10 text-primary border-primary/20">{kind}</Badge>

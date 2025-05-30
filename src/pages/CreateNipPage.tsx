@@ -42,7 +42,8 @@ export default function CreateNipPage() {
           <Button variant="ghost" asChild>
             <Link to="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Back</span>
             </Link>
           </Button>
           <Alert>
@@ -97,7 +98,7 @@ export default function CreateNipPage() {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" asChild>
             <Link to="/">
@@ -161,12 +162,12 @@ export default function CreateNipPage() {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Write your NIP content in Markdown..."
-                      className="min-h-[400px] font-mono"
+                      className="min-h-[300px] sm:min-h-[400px] font-mono text-sm"
                       required
                     />
                   </TabsContent>
                   <TabsContent value="preview">
-                    <div className="border rounded-md p-4 min-h-[400px] bg-muted/50">
+                    <div className="border rounded-md p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] bg-muted/50 overflow-auto">
                       {content ? (
                         <MarkdownRenderer content={content} />
                       ) : (
@@ -180,11 +181,11 @@ export default function CreateNipPage() {
                 </p>
               </div>
 
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" asChild>
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
+                <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
                   <Link to="/">Cancel</Link>
                 </Button>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
                   {isPending ? (
                     <>Publishing...</>
                   ) : (
