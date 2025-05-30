@@ -112,16 +112,16 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
           </Button>
         </div>
         
-        <Card>
-          <CardHeader>
+        <Card className="glass border-primary/20 shadow-lg shadow-primary/5">
+          <CardHeader className="border-b border-primary/10">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>NIP-{nipNumber}</CardTitle>
-                <Badge variant="secondary">Official</Badge>
+              <div className="space-y-2">
+                <CardTitle className="text-3xl gradient-text">NIP-{nipNumber}</CardTitle>
+                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Official Protocol</Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8">
             <MarkdownRenderer content={data!.content} />
           </CardContent>
         </Card>
@@ -210,18 +210,18 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
           )}
         </div>
         
-        <Card>
-          <CardHeader>
+        <Card className="glass border-accent/20 shadow-lg shadow-accent/5">
+          <CardHeader className="border-b border-accent/10">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>{title}</CardTitle>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Badge variant="outline">Custom</Badge>
+              <div className="space-y-3">
+                <CardTitle className="text-3xl gradient-text">{title}</CardTitle>
+                <div className="flex items-center space-x-2 flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">Custom Protocol</Badge>
                   {kinds.length > 0 && (
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 flex-wrap gap-1">
                       <span className="text-sm text-muted-foreground">Kinds:</span>
                       {kinds.map(kind => (
-                        <Badge key={kind} variant="secondary">{kind}</Badge>
+                        <Badge key={kind} variant="secondary" className="bg-primary/10 text-primary border-primary/20">{kind}</Badge>
                       ))}
                     </div>
                   )}
@@ -229,24 +229,24 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
               </div>
             </div>
             
-            <div className="flex items-center space-x-2 pt-4 border-t">
-              <Avatar className="h-8 w-8">
+            <div className="flex items-center space-x-3 pt-6 border-t border-white/10">
+              <Avatar className="h-10 w-10 ring-2 ring-accent/30">
                 <AvatarImage src={author.data?.metadata?.picture} />
-                <AvatarFallback>
+                <AvatarFallback className="bg-accent/10 text-accent">
                   {author.data?.metadata?.name?.[0] || event?.pubkey.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">
+                <p className="font-medium text-accent">
                   {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event?.pubkey.slice(0, 8)}...`}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(event!.created_at * 1000).toLocaleDateString()}
+                <p className="text-sm text-muted-foreground">
+                  Published {new Date(event!.created_at * 1000).toLocaleDateString()}
                 </p>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8">
             <MarkdownRenderer content={event!.content} />
           </CardContent>
         </Card>

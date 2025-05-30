@@ -59,7 +59,7 @@ export function CodeBlock({ children, className, ...props }: CodeBlockProps) {
       <Button
         size="sm"
         variant="outline"
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-background/80 backdrop-blur-sm"
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 glass border-primary/30 hover:border-primary/50 hover:bg-primary/10 text-primary hover:text-accent"
         onClick={handleCopy}
       >
         {copied ? (
