@@ -150,8 +150,8 @@ const Index = () => {
           {/* Official NIPs */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <BookOpen className="h-6 w-6 text-primary" />
+              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20">
+                <BookOpen className="h-6 w-6 text-accent" />
               </div>
               <h2 className="text-3xl font-bold gradient-text">Official NIPs</h2>
             </div>

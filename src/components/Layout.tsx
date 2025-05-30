@@ -14,8 +14,8 @@ export function Layout({ children }: LayoutProps) {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative">
-              <Zap className="h-8 w-8 text-primary group-hover:text-accent transition-colors duration-300" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-accent/20 transition-colors duration-300"></div>
+              <Zap className="h-8 w-8 text-accent group-hover:text-primary transition-colors duration-300" />
+              <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl group-hover:bg-primary/20 transition-colors duration-300"></div>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold gradient-text">NIPs on Nostr</span>
