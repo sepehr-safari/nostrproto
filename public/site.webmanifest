@@ -4,8 +4,8 @@
   "description": "Discover and publish Nostr Implementation Possibilities",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#0a0a0f",
+  "theme_color": "#8b5cf6",
   "orientation": "portrait-primary",
   "icons": [
     {
