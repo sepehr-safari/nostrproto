@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LoginArea } from "@/components/auth/LoginArea";
+import { Footer } from "@/components/Footer";
 import { BookOpen, Plus, User, Zap, Menu } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
@@ -19,7 +20,7 @@ export function Layout({ children }: LayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="min-h-screen bg-background cyber-grid">
+    <div className="min-h-screen bg-background cyber-grid flex flex-col">
       <header className="glass border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
@@ -98,12 +99,14 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-4 sm:py-8 relative overflow-x-hidden">
+      <main className="container mx-auto px-4 py-4 sm:py-8 relative overflow-x-hidden flex-1">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
         <div className="relative z-10 min-w-0">
           {children}
         </div>
       </main>
+      
+      <Footer />
       
       {/* Floating particles effect */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
