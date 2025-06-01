@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
@@ -22,11 +22,15 @@ import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2 } from
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-export default function NipPage() {
-  const { id } = useParams<{ id: string }>();
+interface NipPageProps {
+  nipId: string;
+  isOfficialNip: boolean;
+}
+
+export default function NipPage({ nipId, isOfficialNip }: NipPageProps) {
   const { user } = useCurrentUser();
   
-  if (!id) {
+  if (!nipId) {
     return (
       <Layout>
         <Alert>
@@ -37,13 +41,10 @@ export default function NipPage() {
     );
   }
 
-  // Check if it's an official NIP (2-character hex string) or custom NIP (naddr)
-  const isOfficialNip = /^[0-9A-F]{2}$/i.test(id);
-  
   if (isOfficialNip) {
-    return <OfficialNipView nipNumber={id} />;
+    return <OfficialNipView nipNumber={nipId} />;
   } else {
-    return <CustomNipView naddr={id} user={user} />;
+    return <CustomNipView naddr={nipId} user={user} />;
   }
 }
 

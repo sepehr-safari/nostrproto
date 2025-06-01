@@ -151,7 +151,7 @@ function MyNipCard({ event }: { event: NostrEvent }) {
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <CardTitle className="text-xl">
-                <Link to={`/nip/${naddr}`} className="hover:underline">
+                <Link to={`/${naddr}`} className="hover:underline">
                   {title}
                 </Link>
               </CardTitle>

@@ -107,7 +107,7 @@ const Index = () => {
                 filteredOfficialNips.map((nip) => (
                   <Card key={nip.number} className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
                     <CardContent className="p-4">
-                      <Link to={`/nip/${nip.number}`} className="block">
+                      <Link to={`/${nip.number}`} className="block">
                         <div className="flex items-center justify-between">
                           <div className="space-y-1 flex-1 min-w-0">
                             <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
@@ -199,7 +199,7 @@ function CustomNipCard({ event }: { event: NostrEvent }) {
   return (
     <Card className="glass border-accent/20 hover:border-accent/40 transition-all duration-300 hover:shadow-lg hover:shadow-accent/10 group">
       <CardContent className="p-3 sm:p-4 card-content">
-        <Link to={`/nip/${naddr}`} className="block">
+        <Link to={`/${naddr}`} className="block">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-semibold text-accent group-hover:text-primary transition-colors text-sm sm:text-base leading-tight min-w-0 flex-1">{title}</h3>

@@ -26,7 +26,7 @@ export function Footer() {
               <ExternalLink className="h-3 w-3" />
             </a>
             <Link
-              to="/nip/naddr1qvzqqqrcvypzqprpljlvcnpnw3pejvkkhrc3y6wvmd7vjuad0fg2ud3dky66gaxaqqxku6tswvkk7m3ddehhxarjqk4nmy"
+              to="/naddr1qvzqqqrcvypzqprpljlvcnpnw3pejvkkhrc3y6wvmd7vjuad0fg2ud3dky66gaxaqqxku6tswvkk7m3ddehhxarjqk4nmy"
               className="flex items-center text-muted-foreground hover:text-primary transition-colors duration-300"
             >
               NIPs on Nostr Spec

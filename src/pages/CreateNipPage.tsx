@@ -87,7 +87,7 @@ export default function CreateNipPage() {
             kind: event.kind,
           });
           toast.success('NIP published successfully!');
-          navigate(`/nip/${naddr}`);
+          navigate(`/${naddr}`);
         },
         onError: (error) => {
           toast.error('Failed to publish NIP: ' + error.message);

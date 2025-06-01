@@ -59,7 +59,7 @@ export default function EditNipPage() {
       <Layout>
         <div className="space-y-4">
           <Button variant="ghost" asChild>
-            <Link to={`/nip/${naddr}`}>
+            <Link to={`/${naddr}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to NIP
             </Link>
@@ -80,7 +80,7 @@ export default function EditNipPage() {
       <Layout>
         <div className="space-y-6">
           <Button variant="ghost" asChild>
-            <Link to={`/nip/${naddr}`}>
+            <Link to={`/${naddr}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to NIP
             </Link>
@@ -105,7 +105,7 @@ export default function EditNipPage() {
       <Layout>
         <div className="space-y-4">
           <Button variant="ghost" asChild>
-            <Link to={`/nip/${naddr}`}>
+            <Link to={`/${naddr}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to NIP
             </Link>
@@ -126,7 +126,7 @@ export default function EditNipPage() {
       <Layout>
         <div className="space-y-4">
           <Button variant="ghost" asChild>
-            <Link to={`/nip/${naddr}`}>
+            <Link to={`/${naddr}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to NIP
             </Link>
@@ -172,7 +172,7 @@ export default function EditNipPage() {
             kind: newEvent.kind,
           });
           toast.success('NIP updated successfully!');
-          navigate(`/nip/${newNaddr}`);
+          navigate(`/${newNaddr}`);
         },
         onError: (error) => {
           toast.error('Failed to update NIP: ' + error.message);
@@ -186,7 +186,7 @@ export default function EditNipPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" asChild>
-            <Link to={`/nip/${naddr}`}>
+            <Link to={`/${naddr}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to NIP
             </Link>
@@ -264,7 +264,7 @@ export default function EditNipPage() {
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" asChild>
-                  <Link to={`/nip/${naddr}`}>Cancel</Link>
+                  <Link to={`/${naddr}`}>Cancel</Link>
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
