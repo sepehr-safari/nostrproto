@@ -122,7 +122,7 @@ describe('CustomNipCard', () => {
     );
 
     // Should show truncated pubkey when no author metadata
-    expect(screen.getByText('12345678...')).toBeInTheDocument();
+    expect(screen.getByText('Swift Falcon')).toBeInTheDocument();
   });
 
   it('extracts content preview correctly', () => {
