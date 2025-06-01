@@ -81,7 +81,7 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
             if (isInline) {
               return (
                 <code
-                  className="bg-primary/10 text-accent px-1.5 py-0.5 rounded text-sm font-mono border border-primary/20"
+                  className="bg-primary/10 text-accent px-1.5 py-0.5 rounded font-mono border border-primary/20 text-[0.875em]"
                   {...props}
                 >
                   {children}
