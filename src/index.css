@@ -250,14 +250,6 @@
       overflow-x: auto;
     }
   }
-  
-  /* Ensure touch targets are large enough on mobile */
-  @media (max-width: 768px) {
-    button, a, [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
 
   /* Custom code block styling to match our theme */
   .prose pre {

@@ -116,13 +116,6 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link to={`/create?fork=${nipNumber}&forkType=official`}>
-                <GitFork className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Fork NIP</span>
-                <span className="sm:hidden">Fork</span>
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
               <a
                 href={`https://github.com/nostr-protocol/nips/blob/master/${nipNumber}.md`}
                 target="_blank"
@@ -156,7 +149,7 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
 
 function ForkInfo({ forkTag }: { forkTag: string }) {
   const { data: forkSourceEvent } = useCustomNip(
-    forkTag.startsWith('official:') ? '' : (() => {
+    (() => {
       try {
         const [kind, pubkey, identifier] = forkTag.split(':');
         return nip19.naddrEncode({
@@ -170,24 +163,6 @@ function ForkInfo({ forkTag }: { forkTag: string }) {
     })()
   );
 
-  if (forkTag.startsWith('official:')) {
-    const nipNumber = forkTag.replace('official:', '');
-    return (
-      <div className="pt-4 border-t border-white/10">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <GitFork className="h-4 w-4" />
-          <span>Forked from</span>
-          <Link 
-            to={`/nip/${nipNumber}`}
-            className="text-primary hover:text-primary/80 transition-colors font-medium"
-          >
-            NIP-{nipNumber}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   if (forkSourceEvent) {
     const sourceTitle = forkSourceEvent.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP';
     const [kind, pubkey, identifier] = forkTag.split(':');
@@ -198,10 +173,10 @@ function ForkInfo({ forkTag }: { forkTag: string }) {
     });
 
     return (
-      <div className="pt-4 border-t border-white/10">
+      <div className="pt-6 !mt-5 border-t border-white/10">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <GitFork className="h-4 w-4" />
-          <span>Forked from</span>
+          <span>Fork of</span>
           <Link 
             to={`/${sourceNaddr}`}
             className="text-primary hover:text-primary/80 transition-colors font-medium"
@@ -302,7 +277,7 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
               </Button>
             ) : (
               <Button variant="outline" asChild size="sm" className="sm:size-default">
-                <Link to={`/create?fork=${naddr}&forkType=custom`}>
+                <Link to={`/create?fork=${naddr}`}>
                   <GitFork className="h-4 w-4 mr-2" />
                   <span className="hidden sm:inline">Fork NIP</span>
                   <span className="sm:hidden">Fork</span>

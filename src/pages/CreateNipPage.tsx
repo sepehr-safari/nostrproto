@@ -4,7 +4,6 @@ import { Layout } from '@/components/Layout';
 import { KindInput } from '@/components/KindInput';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCustomNip } from '@/hooks/useCustomNip';
-import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,22 +23,19 @@ export default function CreateNipPage() {
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Get fork parameters from URL
+  const forkParam = searchParams.get('fork');
   
   const [title, setTitle] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [content, setContent] = useState('');
   const [kinds, setKinds] = useState<string[]>([]);
   const [identifierManuallyEdited, setIdentifierManuallyEdited] = useState(false);
-  const [forkSource, setForkSource] = useState<string | null>(null);
-  const [forkSourceType, setForkSourceType] = useState<'custom' | 'official' | null>(null);
-
-  // Get fork parameters from URL
-  const forkParam = searchParams.get('fork');
-  const forkTypeParam = searchParams.get('forkType') as 'custom' | 'official' | null;
+  const [forkSource, setForkSource] = useState<string | null>(forkParam);
 
   // Load fork source data
-  const { data: customForkSource } = useCustomNip(forkParam && forkTypeParam === 'custom' ? forkParam : '');
-  const { data: officialForkSource } = useOfficialNip(forkParam && forkTypeParam === 'official' ? forkParam : '');
+  const { data: customForkSource } = useCustomNip(forkParam ?? '');
 
   // Auto-generate identifier from title
   useEffect(() => {
@@ -50,31 +46,22 @@ export default function CreateNipPage() {
 
   // Initialize fork source when URL params change
   useEffect(() => {
-    if (forkParam && forkTypeParam) {
+    if (forkParam) {
       setForkSource(forkParam);
-      setForkSourceType(forkTypeParam);
     }
-  }, [forkParam, forkTypeParam]);
+  }, [forkParam]);
 
   // Pre-fill form when forking
   useEffect(() => {
-    if (forkSource && forkSourceType) {
-      if (forkSourceType === 'custom' && customForkSource) {
-        const titleTag = customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || '';
-        const kindTags = customForkSource.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]);
-        
-        setTitle(titleTag);
-        setContent(customForkSource.content);
-        setKinds(kindTags);
-        setIdentifierManuallyEdited(false); // Allow auto-generation for fork
-      } else if (forkSourceType === 'official' && officialForkSource) {
-        setTitle(`NIP-${forkSource}`);
-        setContent(officialForkSource.content);
-        setKinds([]);
-        setIdentifierManuallyEdited(false); // Allow auto-generation for fork
-      }
+    if (forkSource && customForkSource) {
+      const titleTag = customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || '';
+      const kindTags = customForkSource.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]);
+      
+      setTitle(titleTag);
+      setContent(customForkSource.content);
+      setKinds(kindTags);
     }
-  }, [forkSource, forkSourceType, customForkSource, officialForkSource]);
+  }, [forkSource, customForkSource]);
 
   if (!user) {
     return (
@@ -115,14 +102,9 @@ export default function CreateNipPage() {
     ];
 
     // Add fork tag if this is a fork
-    if (forkSource && forkSourceType) {
-      if (forkSourceType === 'custom' && customForkSource) {
-        // For custom NIPs, use kind:pubkey:d format
-        tags.push(['fork', `${customForkSource.kind}:${customForkSource.pubkey}:${customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || ''}`]);
-      } else if (forkSourceType === 'official') {
-        // For official NIPs, use a special format
-        tags.push(['fork', `official:${forkSource}`]);
-      }
+    if (forkSource && customForkSource) {
+      // For custom NIPs, use kind:pubkey:d format
+      tags.push(['fork', `${customForkSource.kind}:${customForkSource.pubkey}:${customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || ''}`]);
     }
 
     publishEvent(
@@ -163,39 +145,41 @@ export default function CreateNipPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {forkSource && <GitFork className="h-5 w-5" />}
-              {forkSource ? 'Fork Custom NIP' : 'Create Custom NIP'}
+              Create Custom NIP
             </CardTitle>
-            {forkSource && forkSourceType && (
-              <Alert className="mt-4">
-                <GitFork className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between">
-                  <span>
-                    Forking from {forkSourceType === 'official' ? `NIP-${forkSource}` : 'custom NIP'}
-                    {forkSourceType === 'custom' && customForkSource && (
-                      <span className="ml-1">
-                        "{customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled'}"
+            {forkSource && (
+              <div className="pt-4">
+                <Alert className="p-0">
+                  <div className="flex items-center space-x-2">
+                    <GitFork className="ml-4 h-4 w-4" />
+                    <AlertDescription className="flex items-center justify-between space-between w-full">
+                      <span>
+                        Fork of
+                        {customForkSource && (
+                          <span className="ml-1 font-bold">
+                            {customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled'}
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setForkSource(null);
-                      setForkSourceType(null);
-                      // Clear the URL params
-                      const newUrl = new URL(window.location.href);
-                      newUrl.searchParams.delete('fork');
-                      newUrl.searchParams.delete('forkType');
-                      window.history.replaceState({}, '', newUrl.toString());
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </AlertDescription>
-              </Alert>
+                      <Button
+                        className="ml-auto"
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setForkSource(null);
+                          // Clear the URL params
+                          const newUrl = new URL(window.location.href);
+                          newUrl.searchParams.delete('fork');
+                          window.history.replaceState({}, '', newUrl.toString());
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </AlertDescription>
+                  </div>
+                </Alert>
+              </div>
             )}
           </CardHeader>
           <CardContent>

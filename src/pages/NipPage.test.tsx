@@ -66,7 +66,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('NipPage', () => {
-  it('renders official NIP with fork button', () => {
+  it('renders official NIP with GitHub link', () => {
     render(
       <TestApp>
         <NipPage nipId="01" isOfficialNip={true} />
@@ -74,7 +74,7 @@ describe('NipPage', () => {
     );
 
     expect(screen.getByText('NIP-01')).toBeInTheDocument();
-    expect(screen.getByText('Fork NIP')).toBeInTheDocument();
+    expect(screen.getByText('View on GitHub')).toBeInTheDocument();
     expect(screen.getByText('Official Protocol')).toBeInTheDocument();
   });
 
@@ -99,7 +99,7 @@ describe('NipPage', () => {
       </TestApp>
     );
 
-    expect(screen.getByText('Forked from')).toBeInTheDocument();
+    expect(screen.getByText('Fork of')).toBeInTheDocument();
   });
 
   it('includes fork option in dropdown menu for custom NIPs', () => {
