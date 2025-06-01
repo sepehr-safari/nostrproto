@@ -1,4 +1,4 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import NipPage from './NipPage';
 import AuthorPage from './AuthorPage';

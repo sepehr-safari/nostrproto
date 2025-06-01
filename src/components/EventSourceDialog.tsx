@@ -1,6 +1,6 @@
 import { NostrEvent } from '@nostrify/nostrify';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import { CodeBlock } from '@/components/CodeBlock';

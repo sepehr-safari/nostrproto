@@ -155,7 +155,7 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const isOwner = user?.pubkey === event?.pubkey;
   
   const title = event?.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP';
-  const dTag = event?.tags.find(tag => tag[0] === 'd')?.[1] || '';
+
   const kinds = event?.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]) || [];
 
   if (isLoading) {

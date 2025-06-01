@@ -14,7 +14,7 @@ export function useLikeNip() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ event, naddr }: LikeNipParams) => {
+    mutationFn: async ({ event }: LikeNipParams) => {
       if (!user) {
         throw new Error('User must be logged in to like NIPs');
       }

@@ -9,8 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import { Search, BookOpen, Users, Plus, AlertTriangle, ExternalLink } from 'lucide-react';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { Search, BookOpen, Users, Plus, AlertTriangle } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import type { CarouselApi } from '@/components/ui/carousel';
 
 const Index = () => {
