@@ -6,6 +6,7 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
 import { CommentsSection } from '@/components/CommentsSection';
 import { LikeButton } from '@/components/LikeButton';
+import { EventSourceDialog } from '@/components/EventSourceDialog';
 import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useCustomNip } from '@/hooks/useCustomNip';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -20,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2, Code } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -147,6 +148,7 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [showSourceDialog, setShowSourceDialog] = useState(false);
   const { data: event, isLoading, error } = useCustomNip(naddr);
   const author = useAuthor(event?.pubkey || '');
   
@@ -215,8 +217,8 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
               Back to Home
             </Link>
           </Button>
-          {isOwner && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+            {isOwner && (
               <Button asChild size="sm" className="sm:size-default">
                 <Link to={`/edit/${naddr}`}>
                   <Edit className="h-4 w-4 mr-2" />
@@ -224,13 +226,19 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                   <span className="sm:hidden">Edit</span>
                 </Link>
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowSourceDialog(true)}>
+                  <Code className="h-4 w-4 mr-2" />
+                  View Source
+                </DropdownMenuItem>
+                {isOwner && (
                   <DropdownMenuItem
                     onClick={() => setDeleteDialogOpen(true)}
                     className="text-destructive focus:text-destructive"
@@ -238,10 +246,10 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete NIP
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         
         <Card className="glass border-accent/20 shadow-lg shadow-accent/5">
@@ -306,6 +314,15 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             onOpenChange={setDeleteDialogOpen}
             event={event}
             title={title}
+          />
+        )}
+
+        {/* View Source Dialog */}
+        {event && (
+          <EventSourceDialog
+            event={event}
+            open={showSourceDialog}
+            onOpenChange={setShowSourceDialog}
           />
         )}
       </div>
