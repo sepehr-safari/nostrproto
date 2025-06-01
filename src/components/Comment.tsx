@@ -8,12 +8,12 @@ import { useNipComments } from '@/hooks/useNipComments';
 import { useDeleteComment } from '@/hooks/useDeleteComment';
 import { CommentForm } from '@/components/CommentForm';
 import { NoteContent } from '@/components/NoteContent';
+import { EventSourceDialog } from '@/components/EventSourceDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MessageSquare, ChevronDown, ChevronRight, Trash2, MoreHorizontal, Code } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -203,18 +203,11 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
       )}
 
       {/* View Source Dialog */}
-      <Dialog open={showSourceDialog} onOpenChange={setShowSourceDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Event Source</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-auto">
-            <pre className="text-xs bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap break-all">
-              {JSON.stringify(comment, null, 2)}
-            </pre>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EventSourceDialog
+        event={comment}
+        open={showSourceDialog}
+        onOpenChange={setShowSourceDialog}
+      />
     </div>
   );
 }
