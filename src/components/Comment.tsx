@@ -33,7 +33,6 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
   const timeAgo = formatDistanceToNow(new Date(comment.created_at * 1000), { addSuffix: true });
 
   const hasReplies = replies.length > 0;
-  const canNest = depth < maxDepth;
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>

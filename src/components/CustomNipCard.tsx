@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { nip19 } from 'nostr-tools';
 import { NostrEvent } from '@/types/nostr';
+import { genUserName } from '@/lib/genUserName';
 
 /**
  * Extracts the first paragraph from markdown/text content, skipping headers and other elements
@@ -104,6 +105,7 @@ export function CustomNipCard({
   const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
   const dTag = event.tags.find((tag: string[]) => tag[0] === 'd')?.[1] || '';
   const contentPreview = extractFirstParagraph(event.content, 140);
+  const displayName = author.data?.metadata?.name ?? genUserName(event.pubkey);
   
   const naddr = nip19.naddrEncode({
     identifier: dTag,
@@ -173,7 +175,7 @@ export function CustomNipCard({
                 <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-2 ring-accent/20 hover:ring-primary/30 transition-all">
                   <AvatarImage src={author.data?.metadata?.picture} />
                   <AvatarFallback className="text-xs bg-accent/10 text-accent">
-                    {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
+                    {displayName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </button>
@@ -185,7 +187,7 @@ export function CustomNipCard({
                   navigate(`/${nip19.npubEncode(event.pubkey)}`);
                 }}
               >
-                {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event.pubkey.slice(0, 8)}...`}
+                {displayName}
               </button>
               <span className="text-xs text-muted-foreground/60 flex-shrink-0">
                 {new Date(event.created_at * 1000).toLocaleDateString()}
