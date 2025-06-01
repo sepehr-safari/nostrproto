@@ -158,9 +158,6 @@ const Index = () => {
                               <div className="space-y-1 flex-1">
                                 <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
                                 <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2">{nip.title}</p>
-                                {nip.note && (
-                                  <p className="text-xs text-muted-foreground/70 italic line-clamp-2">{nip.note}</p>
-                                )}
                               </div>
                               <div className="flex flex-wrap gap-1 mt-3">
                                 <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
