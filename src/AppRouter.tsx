@@ -6,10 +6,12 @@ import NipPage from "./pages/NipPage";
 import CreateNipPage from "./pages/CreateNipPage";
 import EditNipPage from "./pages/EditNipPage";
 import MyNipsPage from "./pages/MyNipsPage";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/nip/:id" element={<NipPage />} />
