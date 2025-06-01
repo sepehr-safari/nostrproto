@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { TestApp } from '@/test/TestApp';
 import Index from './Index';
 
@@ -115,5 +115,112 @@ describe('Index', () => {
     );
 
     expect(screen.getByText('No custom NIPs found. Be the first to create one!')).toBeInTheDocument();
+  });
+
+  it('filters custom NIPs based on search term', () => {
+    const mockCustomNips = [
+      {
+        id: 'event1',
+        pubkey: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        created_at: 1000000,
+        kind: 30817,
+        tags: [
+          ['title', 'Lightning Network NIP'],
+          ['d', 'lightning-nip'],
+          ['k', '1'],
+        ],
+        content: 'This NIP describes lightning network integration.',
+        sig: 'sig1',
+      },
+      {
+        id: 'event2',
+        pubkey: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        created_at: 1000001,
+        kind: 30817,
+        tags: [
+          ['title', 'Relay Management'],
+          ['d', 'relay-nip'],
+          ['k', '42'],
+        ],
+        content: 'This NIP describes relay management features.',
+        sig: 'sig2',
+      },
+    ];
+
+    mockUseRecentCustomNips.mockReturnValue({
+      data: mockCustomNips,
+      isLoading: false,
+    });
+
+    render(
+      <TestApp>
+        <Index />
+      </TestApp>
+    );
+
+    // Initially both NIPs should be visible
+    expect(screen.getByText('Lightning Network NIP')).toBeInTheDocument();
+    expect(screen.getByText('Relay Management')).toBeInTheDocument();
+
+    // Search for "lightning" - should only show the first NIP
+    const searchInput = screen.getByPlaceholderText('Search the protocol universe...');
+    fireEvent.change(searchInput, { target: { value: 'lightning' } });
+
+    expect(screen.getByText('Lightning Network NIP')).toBeInTheDocument();
+    expect(screen.queryByText('Relay Management')).not.toBeInTheDocument();
+
+    // Search for kind "42" - should only show the second NIP
+    fireEvent.change(searchInput, { target: { value: '42' } });
+
+    expect(screen.queryByText('Lightning Network NIP')).not.toBeInTheDocument();
+    expect(screen.getByText('Relay Management')).toBeInTheDocument();
+
+    // Search for content "relay" - should only show the second NIP
+    fireEvent.change(searchInput, { target: { value: 'relay' } });
+
+    expect(screen.queryByText('Lightning Network NIP')).not.toBeInTheDocument();
+    expect(screen.getByText('Relay Management')).toBeInTheDocument();
+
+    // Clear search - both should be visible again
+    fireEvent.change(searchInput, { target: { value: '' } });
+
+    expect(screen.getByText('Lightning Network NIP')).toBeInTheDocument();
+    expect(screen.getByText('Relay Management')).toBeInTheDocument();
+  });
+
+  it('shows no results message when search yields no custom NIPs', () => {
+    const mockCustomNips = [
+      {
+        id: 'event1',
+        pubkey: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        created_at: 1000000,
+        kind: 30817,
+        tags: [
+          ['title', 'Test NIP'],
+          ['d', 'test-nip'],
+          ['k', '1'],
+        ],
+        content: 'This is a test NIP content.',
+        sig: 'sig1',
+      },
+    ];
+
+    mockUseRecentCustomNips.mockReturnValue({
+      data: mockCustomNips,
+      isLoading: false,
+    });
+
+    render(
+      <TestApp>
+        <Index />
+      </TestApp>
+    );
+
+    // Search for something that doesn't match
+    const searchInput = screen.getByPlaceholderText('Search the protocol universe...');
+    fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
+
+    expect(screen.getByText('No custom NIPs found matching your search.')).toBeInTheDocument();
+    expect(screen.queryByText('Test NIP')).not.toBeInTheDocument();
   });
 });

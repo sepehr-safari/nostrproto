@@ -26,6 +26,22 @@ const Index = () => {
       nip.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredCustomNips = (recentNips || []).filter(event => {
+    if (!searchTerm) return true;
+    
+    const title = event.tags.find((tag: string[]) => tag[0] === 'title')?.[1] || '';
+    const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
+    const content = event.content || '';
+    
+    const searchLower = searchTerm.toLowerCase();
+    
+    return (
+      title.toLowerCase().includes(searchLower) ||
+      content.toLowerCase().includes(searchLower) ||
+      kinds.some(kind => kind.includes(searchTerm))
+    );
+  });
+
   useEffect(() => {
     const carouselElement = carouselRef.current;
     if (!carouselElement || !carouselApi) return;
@@ -208,10 +224,18 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))
-            ) : recentNips && recentNips.length > 0 ? (
-              recentNips.map((event) => (
+            ) : filteredCustomNips && filteredCustomNips.length > 0 ? (
+              filteredCustomNips.map((event) => (
                 <CustomNipCard key={event.id} event={event} />
               ))
+            ) : recentNips && recentNips.length > 0 && searchTerm ? (
+              <div className="col-span-full">
+                <Card>
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    No custom NIPs found matching your search.
+                  </CardContent>
+                </Card>
+              </div>
             ) : (
               <div className="col-span-full">
                 <Card>
