@@ -9,6 +9,7 @@ import { useDeleteComment } from '@/hooks/useDeleteComment';
 import { CommentForm } from '@/components/CommentForm';
 import { NoteContent } from '@/components/NoteContent';
 import { EventSourceDialog } from '@/components/EventSourceDialog';
+import { CommentReactions } from '@/components/CommentReactions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -87,6 +88,9 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
             <div className="text-sm">
               <NoteContent event={comment} className="text-sm" />
             </div>
+
+            {/* Comment Reactions */}
+            <CommentReactions comment={comment} className="pt-2" />
 
             {/* Comment Actions */}
             <div className="flex items-center justify-between pt-2">
