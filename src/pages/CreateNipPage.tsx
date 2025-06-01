@@ -63,12 +63,12 @@ export default function CreateNipPage() {
         const titleTag = customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || '';
         const kindTags = customForkSource.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]);
         
-        setTitle(`Fork of ${titleTag}`);
+        setTitle(titleTag);
         setContent(customForkSource.content);
         setKinds(kindTags);
         setIdentifierManuallyEdited(false); // Allow auto-generation for fork
       } else if (forkSourceType === 'official' && officialForkSource) {
-        setTitle(`Fork of NIP-${forkSource}`);
+        setTitle(`NIP-${forkSource}`);
         setContent(officialForkSource.content);
         setKinds([]);
         setIdentifierManuallyEdited(false); // Allow auto-generation for fork
