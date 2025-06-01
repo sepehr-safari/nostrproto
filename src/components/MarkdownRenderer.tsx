@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
   return (
-    <div className={`prose prose-slate prose-lg max-w-4xl mx-auto dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-p:mb-4 prose-p:leading-relaxed prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1 prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-pre:bg-muted/50 prose-pre:border prose-pre:border-primary/20 prose-pre:p-4 prose-pre:rounded-lg prose-pre:my-4 ${className}`}>
+    <div className={`prose prose-slate prose-lg max-w-4xl mx-auto dark:prose-invert prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-p:mb-4 prose-p:leading-relaxed prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1 prose-pre:bg-muted/50 prose-pre:border prose-pre:border-primary/20 prose-pre:p-4 prose-pre:rounded-lg prose-pre:my-4 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -113,7 +113,7 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
           ),
           // Custom blockquote styling
           blockquote: ({ children, ...props }) => (
-            <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-4 text-gray-700 dark:text-gray-300" {...props}>
+            <blockquote className="border-l-4 border-primary/30 pl-4 italic my-4 text-foreground/90 bg-muted/30 py-2 rounded-r-md" {...props}>
               {children}
             </blockquote>
           ),

@@ -48,4 +48,22 @@ describe('MarkdownRenderer', () => {
     expect(codeElement).toHaveClass('border-primary/20');
     expect(codeElement).toHaveClass('text-[0.875em]');
   });
+
+  it('renders blockquotes with proper contrast and styling', () => {
+    const content = '> This is a quote block with better contrast.';
+    render(<MarkdownRenderer content={content} />);
+    
+    const blockquoteElement = screen.getByText('This is a quote block with better contrast.');
+    const blockquote = blockquoteElement.closest('blockquote');
+    
+    expect(blockquote).toHaveClass('border-l-4');
+    expect(blockquote).toHaveClass('border-primary/30');
+    expect(blockquote).toHaveClass('pl-4');
+    expect(blockquote).toHaveClass('italic');
+    expect(blockquote).toHaveClass('my-4');
+    expect(blockquote).toHaveClass('text-foreground/90');
+    expect(blockquote).toHaveClass('bg-muted/30');
+    expect(blockquote).toHaveClass('py-2');
+    expect(blockquote).toHaveClass('rounded-r-md');
+  });
 });
