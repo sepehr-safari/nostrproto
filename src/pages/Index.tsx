@@ -167,9 +167,9 @@ const Index = () => {
                 <CarouselContent className="-ml-2 md:-ml-4 mr-8">
                   {filteredOfficialNips.map((nip) => (
                     <CarouselItem key={nip.number} className="pl-2 md:pl-4 basis-[85%] sm:basis-[45%] lg:basis-[30%] xl:basis-[23%]">
-                      <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group h-full">
-                        <CardContent className="p-4">
-                          <Link to={`/${nip.number}`} className="block h-full">
+                      <Link to={`/${nip.number}`} className="block h-full">
+                        <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group h-full">
+                          <CardContent className="p-4">
                             <div className="flex flex-col justify-between h-full">
                               <div className="space-y-1 flex-1">
                                 <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
@@ -182,9 +182,9 @@ const Index = () => {
                                 )}
                               </div>
                             </div>
-                          </Link>
-                        </CardContent>
-                      </Card>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
