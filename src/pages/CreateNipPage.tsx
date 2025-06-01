@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { KindInput } from '@/components/KindInput';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCustomNip } from '@/hooks/useCustomNip';
+import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { ArrowLeft, AlertCircle, Save } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Save, GitFork, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { nip19 } from 'nostr-tools';
 import { slugify } from '@/lib/utils';
@@ -21,12 +23,23 @@ export default function CreateNipPage() {
   const { user } = useCurrentUser();
   const { mutate: publishEvent, isPending } = useNostrPublish();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const [title, setTitle] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [content, setContent] = useState('');
   const [kinds, setKinds] = useState<string[]>([]);
   const [identifierManuallyEdited, setIdentifierManuallyEdited] = useState(false);
+  const [forkSource, setForkSource] = useState<string | null>(null);
+  const [forkSourceType, setForkSourceType] = useState<'custom' | 'official' | null>(null);
+
+  // Get fork parameters from URL
+  const forkParam = searchParams.get('fork');
+  const forkTypeParam = searchParams.get('forkType') as 'custom' | 'official' | null;
+
+  // Load fork source data
+  const { data: customForkSource } = useCustomNip(forkParam && forkTypeParam === 'custom' ? forkParam : '');
+  const { data: officialForkSource } = useOfficialNip(forkParam && forkTypeParam === 'official' ? forkParam : '');
 
   // Auto-generate identifier from title
   useEffect(() => {
@@ -34,6 +47,34 @@ export default function CreateNipPage() {
       setIdentifier(slugify(title));
     }
   }, [title, identifierManuallyEdited]);
+
+  // Initialize fork source when URL params change
+  useEffect(() => {
+    if (forkParam && forkTypeParam) {
+      setForkSource(forkParam);
+      setForkSourceType(forkTypeParam);
+    }
+  }, [forkParam, forkTypeParam]);
+
+  // Pre-fill form when forking
+  useEffect(() => {
+    if (forkSource && forkSourceType) {
+      if (forkSourceType === 'custom' && customForkSource) {
+        const titleTag = customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || '';
+        const kindTags = customForkSource.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]);
+        
+        setTitle(`Fork of ${titleTag}`);
+        setContent(customForkSource.content);
+        setKinds(kindTags);
+        setIdentifierManuallyEdited(false); // Allow auto-generation for fork
+      } else if (forkSourceType === 'official' && officialForkSource) {
+        setTitle(`Fork of NIP-${forkSource}`);
+        setContent(officialForkSource.content);
+        setKinds([]);
+        setIdentifierManuallyEdited(false); // Allow auto-generation for fork
+      }
+    }
+  }, [forkSource, forkSourceType, customForkSource, officialForkSource]);
 
   if (!user) {
     return (
@@ -73,6 +114,17 @@ export default function CreateNipPage() {
       ...kinds.map(kind => ['k', kind]),
     ];
 
+    // Add fork tag if this is a fork
+    if (forkSource && forkSourceType) {
+      if (forkSourceType === 'custom' && customForkSource) {
+        // For custom NIPs, use kind:pubkey:d format
+        tags.push(['fork', `${customForkSource.kind}:${customForkSource.pubkey}:${customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || ''}`]);
+      } else if (forkSourceType === 'official') {
+        // For official NIPs, use a special format
+        tags.push(['fork', `official:${forkSource}`]);
+      }
+    }
+
     publishEvent(
       {
         kind: 30817,
@@ -110,7 +162,41 @@ export default function CreateNipPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Create Custom NIP</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              {forkSource && <GitFork className="h-5 w-5" />}
+              {forkSource ? 'Fork Custom NIP' : 'Create Custom NIP'}
+            </CardTitle>
+            {forkSource && forkSourceType && (
+              <Alert className="mt-4">
+                <GitFork className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>
+                    Forking from {forkSourceType === 'official' ? `NIP-${forkSource}` : 'custom NIP'}
+                    {forkSourceType === 'custom' && customForkSource && (
+                      <span className="ml-1">
+                        "{customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled'}"
+                      </span>
+                    )}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setForkSource(null);
+                      setForkSourceType(null);
+                      // Clear the URL params
+                      const newUrl = new URL(window.location.href);
+                      newUrl.searchParams.delete('fork');
+                      newUrl.searchParams.delete('forkType');
+                      window.history.replaceState({}, '', newUrl.toString());
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">

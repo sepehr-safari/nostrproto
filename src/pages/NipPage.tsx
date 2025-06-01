@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2, Code } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Edit, ExternalLink, MoreVertical, Trash2, Code, GitFork } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -114,17 +114,26 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
               Back to Home
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <a
-              href={`https://github.com/nostr-protocol/nips/blob/master/${nipNumber}.md`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">View on GitHub</span>
-              <span className="sm:hidden">GitHub</span>
-            </a>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link to={`/create?fork=${nipNumber}&forkType=official`}>
+                <GitFork className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Fork NIP</span>
+                <span className="sm:hidden">Fork</span>
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <a
+                href={`https://github.com/nostr-protocol/nips/blob/master/${nipNumber}.md`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">View on GitHub</span>
+                <span className="sm:hidden">GitHub</span>
+              </a>
+            </Button>
+          </div>
         </div>
         
         <Card className="glass border-primary/20 shadow-lg shadow-primary/5">
@@ -145,6 +154,68 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
   );
 }
 
+function ForkInfo({ forkTag }: { forkTag: string }) {
+  const { data: forkSourceEvent } = useCustomNip(
+    forkTag.startsWith('official:') ? '' : (() => {
+      try {
+        const [kind, pubkey, identifier] = forkTag.split(':');
+        return nip19.naddrEncode({
+          kind: parseInt(kind),
+          pubkey,
+          identifier,
+        });
+      } catch {
+        return '';
+      }
+    })()
+  );
+
+  if (forkTag.startsWith('official:')) {
+    const nipNumber = forkTag.replace('official:', '');
+    return (
+      <div className="pt-4 border-t border-white/10">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <GitFork className="h-4 w-4" />
+          <span>Forked from</span>
+          <Link 
+            to={`/nip/${nipNumber}`}
+            className="text-primary hover:text-primary/80 transition-colors font-medium"
+          >
+            NIP-{nipNumber}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (forkSourceEvent) {
+    const sourceTitle = forkSourceEvent.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP';
+    const [kind, pubkey, identifier] = forkTag.split(':');
+    const sourceNaddr = nip19.naddrEncode({
+      kind: parseInt(kind),
+      pubkey,
+      identifier,
+    });
+
+    return (
+      <div className="pt-4 border-t border-white/10">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <GitFork className="h-4 w-4" />
+          <span>Forked from</span>
+          <Link 
+            to={`/${sourceNaddr}`}
+            className="text-primary hover:text-primary/80 transition-colors font-medium"
+          >
+            {sourceTitle}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -157,6 +228,9 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const title = event?.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP';
 
   const kinds = event?.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]) || [];
+  
+  const forkTag = event?.tags.find(tag => tag[0] === 'fork')?.[1];
+  const isForked = !!forkTag;
 
   if (isLoading) {
     return (
@@ -218,12 +292,20 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             </Link>
           </Button>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
-            {isOwner && (
+            {isOwner ? (
               <Button asChild size="sm" className="sm:size-default">
                 <Link to={`/edit/${naddr}`}>
                   <Edit className="h-4 w-4 mr-2" />
                   <span className="hidden sm:inline">Edit NIP</span>
                   <span className="sm:hidden">Edit</span>
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="outline" asChild size="sm" className="sm:size-default">
+                <Link to={`/create?fork=${naddr}&forkType=custom`}>
+                  <GitFork className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Fork NIP</span>
+                  <span className="sm:hidden">Fork</span>
                 </Link>
               </Button>
             )}
@@ -259,6 +341,12 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                 <CardTitle className="text-2xl sm:text-3xl gradient-text break-words">{title}</CardTitle>
                 <div className="flex items-center flex-wrap gap-2">
                   <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">Custom Protocol</Badge>
+                  {isForked && (
+                    <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20">
+                      <GitFork className="h-3 w-3 mr-1" />
+                      Fork
+                    </Badge>
+                  )}
                   {kinds.length > 0 && (
                     <div className="flex items-center flex-wrap gap-1">
                       <span className="text-sm text-muted-foreground">Kinds:</span>
@@ -299,6 +387,11 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                 </p>
               </div>
             </div>
+            
+            {/* Fork Information */}
+            {isForked && forkTag && (
+              <ForkInfo forkTag={forkTag} />
+            )}
           </CardHeader>
           <CardContent className="p-8">
             <MarkdownRenderer content={event!.content} />
