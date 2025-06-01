@@ -1,8 +1,10 @@
+import { lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
-import NipPage from './NipPage';
-import AuthorPage from './AuthorPage';
-import NotFound from './NotFound';
+
+const NipPage = lazy(() => import('./NipPage'));
+const AuthorPage = lazy(() => import('./AuthorPage'));
+const NotFound = lazy(() => import('./NotFound'));
 
 export default function Nip19Page() {
   const { nip19: nip19Param } = useParams<{ nip19: string }>();
