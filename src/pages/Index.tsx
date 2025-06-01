@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import { Search, BookOpen, Users, Plus, AlertTriangle } from 'lucide-react';
+import { Search, BookOpen, Users, Plus, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { CarouselApi } from '@/components/ui/carousel';
 
@@ -76,45 +76,42 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="space-y-8">
+      <div className="space-y-8 py-8">
         {/* Hero Section */}
-        <div className="text-center space-y-6 sm:space-y-8 py-8 sm:py-12 px-2">
+        <div className="text-center space-y-6 sm:space-y-8">
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold gradient-text mb-4 leading-tight">
               NIPs on Nostr
             </h1>
-            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-primary via-accent to-primary mx-auto rounded-full"></div>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
-              Discover official <span className="text-primary font-semibold">Nostr Implementation Possibilities</span> and publish your own custom NIPs on the 
-              <span className="text-accent font-semibold"> decentralized network</span> of the future.
+              Discover <a href="https://github.com/nostr-protocol/nips" className="text-primary font-semibold" target="_blank">Official NIPs</a> and publish your own
+              <Link to="/naddr1qvzqqqrcvypzqprpljlvcnpnw3pejvkkhrc3y6wvmd7vjuad0fg2ud3dky66gaxaqqxku6tswvkk7m3ddehhxarjqk4nmy" className="text-accent font-semibold"> Custom NIPs</Link> on Nostr.
             </p>
           </div>
-          
-
-
         </div>
 
         {/* Search */}
-        <div className="max-w-lg mx-auto px-4">
+        <div className="max-w-lg mx-auto">
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground group-focus-within:text-accent transition-colors z-10" />
             <Input
               placeholder="Search the protocol universe..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 sm:pl-12 pr-4 py-2 sm:py-3 glass border-primary/30 focus:border-accent/50 focus:ring-accent/20 text-base sm:text-lg placeholder:text-muted-foreground/60 transition-all duration-300"
+              className="pl-10 sm:pl-12 pr-4 py-2 sm:py-6 rounded-full glass border-primary/30 focus:border-accent/50 focus:ring-accent/20 md:text-lg text-lg placeholder:text-muted-foreground/60 transition-all duration-300"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
           </div>
         </div>
 
         {/* Official NIPs - Horizontal Slider */}
         <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
-              <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Official NIPs</h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Official NIPs</h2>
           </div>
           
           {isLoadingOfficial ? (
