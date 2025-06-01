@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NostrEvent } from '@nostrify/nostrify';
 
 import { TestApp } from '@/test/TestApp';
@@ -74,7 +75,9 @@ describe('Comment', () => {
     expect(screen.getByText('Reply')).toBeInTheDocument();
   });
 
-  it('shows delete button for comment owner', () => {
+  it('shows comment menu with delete option for comment owner', async () => {
+    const user = userEvent.setup();
+    
     mockUseCurrentUser.mockReturnValue({
       user: {
         pubkey: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -93,12 +96,23 @@ describe('Comment', () => {
       </TestApp>
     );
 
-    // Look for the delete button by its aria-label
-    const deleteButton = screen.getByRole('button', { name: 'Delete comment' });
-    expect(deleteButton).toBeInTheDocument();
+    // Look for the menu trigger button
+    const menuButton = screen.getByRole('button', { name: 'Comment options' });
+    expect(menuButton).toBeInTheDocument();
+
+    // Click to open the menu
+    await user.click(menuButton);
+
+    // Wait for menu items to appear
+    await waitFor(() => {
+      expect(screen.getByText('Delete comment')).toBeInTheDocument();
+    }, { timeout: 3000 });
+    expect(screen.getByText('View source')).toBeInTheDocument();
   });
 
-  it('does not show delete button for non-owner', () => {
+  it('does not show delete option for non-owner', async () => {
+    const user = userEvent.setup();
+    
     mockUseCurrentUser.mockReturnValue({
       user: {
         pubkey: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
@@ -117,11 +131,23 @@ describe('Comment', () => {
       </TestApp>
     );
 
-    // Delete button should not be present
-    expect(screen.queryByRole('button', { name: 'Delete comment' })).not.toBeInTheDocument();
+    // Menu should still be present
+    const menuButton = screen.getByRole('button', { name: 'Comment options' });
+    expect(menuButton).toBeInTheDocument();
+
+    // Click to open the menu
+    await user.click(menuButton);
+
+    // Wait for menu to open and check items
+    await waitFor(() => {
+      expect(screen.getByText('View source')).toBeInTheDocument();
+    }, { timeout: 3000 });
+    expect(screen.queryByText('Delete comment')).not.toBeInTheDocument();
   });
 
-  it('does not show delete button when user is not logged in', () => {
+  it('does not show delete option when user is not logged in', async () => {
+    const user = userEvent.setup();
+    
     mockUseCurrentUser.mockReturnValue({
       user: undefined,
       users: [],
@@ -133,11 +159,23 @@ describe('Comment', () => {
       </TestApp>
     );
 
-    // Delete button should not be present
-    expect(screen.queryByRole('button', { name: 'Delete comment' })).not.toBeInTheDocument();
+    // Menu should still be present
+    const menuButton = screen.getByRole('button', { name: 'Comment options' });
+    expect(menuButton).toBeInTheDocument();
+
+    // Click to open the menu
+    await user.click(menuButton);
+
+    // Wait for menu to open and check items
+    await waitFor(() => {
+      expect(screen.getByText('View source')).toBeInTheDocument();
+    }, { timeout: 3000 });
+    expect(screen.queryByText('Delete comment')).not.toBeInTheDocument();
   });
 
-  it('opens confirmation dialog when delete button is clicked', () => {
+  it('opens confirmation dialog when delete option is clicked', async () => {
+    const user = userEvent.setup();
+    
     mockUseCurrentUser.mockReturnValue({
       user: {
         pubkey: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -156,10 +194,50 @@ describe('Comment', () => {
       </TestApp>
     );
 
-    const deleteButton = screen.getByRole('button', { name: 'Delete comment' });
-    fireEvent.click(deleteButton);
+    // Open the menu
+    const menuButton = screen.getByRole('button', { name: 'Comment options' });
+    await user.click(menuButton);
+
+    // Wait for menu to open and click delete option
+    await waitFor(() => {
+      expect(screen.getByText('Delete comment')).toBeInTheDocument();
+    }, { timeout: 3000 });
+    
+    const deleteOption = screen.getByText('Delete comment');
+    await user.click(deleteOption);
 
     expect(screen.getByText('Delete Comment')).toBeInTheDocument();
     expect(screen.getByText(/Are you sure you want to delete this comment/)).toBeInTheDocument();
+  });
+
+  it('opens source dialog when view source is clicked', async () => {
+    const user = userEvent.setup();
+    
+    mockUseCurrentUser.mockReturnValue({
+      user: undefined,
+      users: [],
+    });
+
+    render(
+      <TestApp>
+        <Comment comment={mockComment} naddr={mockNaddr} />
+      </TestApp>
+    );
+
+    // Open the menu
+    const menuButton = screen.getByRole('button', { name: 'Comment options' });
+    await user.click(menuButton);
+
+    // Wait for menu to open and click view source option
+    await waitFor(() => {
+      expect(screen.getByText('View source')).toBeInTheDocument();
+    }, { timeout: 3000 });
+    
+    const viewSourceOption = screen.getByText('View source');
+    await user.click(viewSourceOption);
+
+    expect(screen.getByText('Event Source')).toBeInTheDocument();
+    expect(screen.getByText(/"kind": 1111/)).toBeInTheDocument();
+    expect(screen.getByText(/"content": "This is a test comment"/)).toBeInTheDocument();
   });
 });

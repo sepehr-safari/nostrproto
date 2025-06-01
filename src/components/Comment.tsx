@@ -13,7 +13,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { MessageSquare, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MessageSquare, ChevronDown, ChevronRight, Trash2, MoreHorizontal, Code } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
 
@@ -27,6 +29,7 @@ interface CommentProps {
 export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
+  const [showSourceDialog, setShowSourceDialog] = useState(false);
   
   const author = useAuthor(comment.pubkey);
   const { user } = useCurrentUser();
@@ -46,6 +49,10 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
 
   const handleDelete = () => {
     deleteComment({ comment });
+  };
+
+  const handleViewSource = () => {
+    setShowSourceDialog(true);
   };
 
   return (
@@ -110,40 +117,56 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
                 )}
               </div>
 
-              {/* Delete button for comment owner */}
-              {isOwner && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
-                      disabled={isDeleting}
-                      aria-label="Delete comment"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Comment</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this comment? This action will send a deletion request to relays, but the comment may still be visible on some clients or relays that don't support deletion.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDelete}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        disabled={isDeleting}
-                      >
-                        {isDeleting ? 'Deleting...' : 'Delete'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
+              {/* Comment menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    aria-label="Comment options"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleViewSource}>
+                    <Code className="h-3 w-3 mr-2" />
+                    View source
+                  </DropdownMenuItem>
+                  {isOwner && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-3 w-3 mr-2" />
+                          Delete comment
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Comment</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this comment? This action will send a deletion request to relays, but the comment may still be visible on some clients or relays that don't support deletion.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? 'Deleting...' : 'Delete'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardContent>
@@ -178,6 +201,20 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
           </CollapsibleContent>
         </Collapsible>
       )}
+
+      {/* View Source Dialog */}
+      <Dialog open={showSourceDialog} onOpenChange={setShowSourceDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Event Source</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-auto">
+            <pre className="text-xs bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap break-all">
+              {JSON.stringify(comment, null, 2)}
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
