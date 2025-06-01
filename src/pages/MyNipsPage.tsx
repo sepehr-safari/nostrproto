@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
+import { CustomNipCard } from '@/components/CustomNipCard';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useMyNips } from '@/hooks/useMyNips';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -72,17 +72,17 @@ export default function MyNipsPage() {
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4" />
-                    <div className="flex items-center space-x-2">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-4 w-20" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-2/3" />
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <Skeleton className="h-6 w-3/4" />
+                      <div className="flex items-center space-x-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -129,7 +129,6 @@ function MyNipCard({ event }: { event: NostrEvent }) {
   
   const title = event.tags.find((tag: string[]) => tag[0] === 'title')?.[1] || 'Untitled NIP';
   const dTag = event.tags.find((tag: string[]) => tag[0] === 'd')?.[1] || '';
-  const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
   
   const naddr = nip19.naddrEncode({
     identifier: dTag,
@@ -137,79 +136,41 @@ function MyNipCard({ event }: { event: NostrEvent }) {
     kind: event.kind,
   });
 
-  // Get first few lines of content for preview
-  const contentPreview = event.content
-    .split('\n')
-    .slice(0, 3)
-    .join(' ')
-    .substring(0, 200) + (event.content.length > 200 ? '...' : '');
+  const actions = (
+    <div className="flex items-center space-x-2">
+      <Button size="sm" asChild>
+        <Link to={`/edit/${naddr}`}>
+          <Edit className="h-4 w-4 mr-2" />
+          Edit
+        </Link>
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete NIP
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 
   return (
     <>
-      <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-xl">
-                <Link to={`/${naddr}`} className="hover:underline">
-                  {title}
-                </Link>
-              </CardTitle>
-              <div className="flex items-center space-x-2">
-                <Badge variant="outline">Custom</Badge>
-                {kinds.length > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <span className="text-sm text-muted-foreground">Kinds:</span>
-                    {kinds.slice(0, 3).map(kind => (
-                      <Link key={kind} to={`/kind/${kind}`}>
-                        <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
-                          {kind}
-                        </Badge>
-                      </Link>
-                    ))}
-                    {kinds.length > 3 && (
-                      <span className="text-sm text-muted-foreground">+{kinds.length - 3} more</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button size="sm" asChild>
-                <Link to={`/edit/${naddr}`}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Link>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => setDeleteDialogOpen(true)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete NIP
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm mb-4">
-            {contentPreview}
-          </p>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Created {new Date(event.created_at * 1000).toLocaleDateString()}</span>
-            <span>ID: {dTag}</span>
-          </div>
-        </CardContent>
-      </Card>
+      <CustomNipCard 
+        event={event} 
+        maxKinds={3} 
+        actions={actions}
+        className="hover:shadow-md"
+      />
 
       <DeleteNipDialog
         open={deleteDialogOpen}

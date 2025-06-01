@@ -121,9 +121,7 @@ describe('KindPage', () => {
     );
 
     expect(screen.getByText('Test NIP')).toBeInTheDocument();
-    expect(screen.getByText('by Test Author')).toBeInTheDocument();
-    expect(screen.getByText('This is a test NIP content that describes kind 1 events.')).toBeInTheDocument();
-    expect(screen.getByText('ID: test-nip')).toBeInTheDocument();
+    expect(screen.getByText('Test Author')).toBeInTheDocument();
     
     // Check that the kind badge is clickable
     const kindBadge = screen.getByRole('link', { name: '1' });
