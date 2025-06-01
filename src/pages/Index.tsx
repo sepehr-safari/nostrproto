@@ -90,20 +90,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 pt-4">
-            <Button asChild size="lg" className="pulse-glow bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white border-0 w-full sm:w-auto">
-              <Link to="/create">
-                <Plus className="h-5 w-5 mr-2" />
-                Create Custom NIP
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild className="glass border-primary/30 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-300 w-full sm:w-auto">
-              <Link to="/my-nips">
-                <Users className="h-5 w-5 mr-2" />
-                My NIPs
-              </Link>
-            </Button>
-          </div>
+
 
         </div>
 
@@ -199,13 +186,20 @@ const Index = () => {
           )}
         </div>
 
-        {/* Recent Custom NIPs - Unbounded List */}
+        {/* Custom NIPs List */}
         <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Custom NIPs</h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Custom NIPs</h2>
+            <Button asChild size="icon" variant="outline">
+              <Link to="/create">
+                <Plus className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
           
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
