@@ -24,7 +24,7 @@ describe('CustomNipCard', () => {
       ['k', '1'],
       ['k', '42'],
     ],
-    content: 'This is a test NIP content.',
+    content: '# Test NIP\n\nThis is a test NIP content that describes the functionality of this custom protocol extension.',
     sig: 'sig1',
   };
 
@@ -49,6 +49,7 @@ describe('CustomNipCard', () => {
     expect(screen.getByText('Test NIP')).toBeInTheDocument();
     expect(screen.getByText('Custom')).toBeInTheDocument();
     expect(screen.getByText('Test Author')).toBeInTheDocument();
+    expect(screen.getByText('This is a test NIP content that describes the functionality of this custom protocol extension.')).toBeInTheDocument();
   });
 
   it('renders clickable kind badges', () => {
@@ -120,5 +121,88 @@ describe('CustomNipCard', () => {
 
     // Should show truncated pubkey when no author metadata
     expect(screen.getByText('12345678...')).toBeInTheDocument();
+  });
+
+  it('extracts content preview correctly', () => {
+    const eventWithMarkdown = {
+      ...mockEvent,
+      content: '# Header\n\n## Subheader\n\nThis is the first paragraph that should be extracted as preview content.\n\nThis is a second paragraph.',
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={eventWithMarkdown} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('This is the first paragraph that should be extracted as preview content.')).toBeInTheDocument();
+  });
+
+  it('handles long content by truncating', () => {
+    const eventWithLongContent = {
+      ...mockEvent,
+      content: 'This is a very long paragraph that exceeds the maximum character limit and should be truncated with ellipsis to ensure the card remains readable and does not become too tall or overwhelming for users browsing through multiple NIPs.',
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={eventWithLongContent} />
+      </TestApp>
+    );
+
+    // Should be truncated and end with ellipsis
+    const preview = screen.getByText(/This is a very long paragraph.*\.\.\./);
+    expect(preview).toBeInTheDocument();
+    expect(preview.textContent!.length).toBeLessThanOrEqual(143); // 140 + "..."
+  });
+
+  it('handles empty content gracefully', () => {
+    const eventWithEmptyContent = {
+      ...mockEvent,
+      content: '',
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={eventWithEmptyContent} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('Test NIP')).toBeInTheDocument();
+    // Should not crash and should not show any content preview
+  });
+
+  it('skips setext-style headers correctly', () => {
+    const eventWithSetextHeaders = {
+      ...mockEvent,
+      content: 'Main Title\n==========\n\nSubtitle\n--------\n\nThis is the actual content that should be extracted as the preview.',
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={eventWithSetextHeaders} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('This is the actual content that should be extracted as the preview.')).toBeInTheDocument();
+    expect(screen.queryByText('Main Title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Subtitle')).not.toBeInTheDocument();
+  });
+
+  it('skips lines that are entirely inline code blocks', () => {
+    const eventWithCodeLines = {
+      ...mockEvent,
+      content: '`someVariable`\n\n  `anotherFunction`  \n\nThis is the description that should be shown as preview.',
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={eventWithCodeLines} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('This is the description that should be shown as preview.')).toBeInTheDocument();
+    expect(screen.queryByText('someVariable')).not.toBeInTheDocument();
+    expect(screen.queryByText('anotherFunction')).not.toBeInTheDocument();
   });
 });

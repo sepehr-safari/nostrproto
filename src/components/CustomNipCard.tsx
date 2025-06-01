@@ -6,6 +6,82 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { nip19 } from 'nostr-tools';
 import { NostrEvent } from '@/types/nostr';
 
+/**
+ * Extracts the first paragraph from markdown/text content, skipping headers and other elements
+ */
+function extractFirstParagraph(content: string, maxLength: number = 140): string {
+  if (!content) return '';
+  
+  // Split into lines and filter out empty lines
+  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
+    
+    // Skip markdown headers (# ## ### etc)
+    if (line.startsWith('#')) continue;
+    
+    // Skip setext-style headers (underlined with = or -)
+    if (nextLine && (nextLine.match(/^=+$/) || nextLine.match(/^-+$/))) {
+      i++; // Skip the next line too (the underline)
+      continue;
+    }
+    
+    // Skip horizontal rules
+    if (line.match(/^[-*_]{3,}$/)) continue;
+    
+    // Skip code blocks
+    if (line.startsWith('```')) continue;
+    
+    // Skip list items (- * +)
+    if (line.match(/^[-*+]\s/)) continue;
+    
+    // Skip numbered lists
+    if (line.match(/^\d+\.\s/)) continue;
+    
+    // Skip blockquotes
+    if (line.startsWith('>')) continue;
+    
+    // Skip lines that are entirely inline code blocks (with possible whitespace)
+    if (line.match(/^\s*(`[^`]*`\s*)+$/)) continue;
+    
+    // Skip lines that are just punctuation or special chars
+    if (line.match(/^[^\w\s]*$/)) continue;
+    
+    // If we found a substantial line, use it
+    if (line.length > 10) {
+      // Remove markdown formatting
+      let cleaned = line
+        .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+        .replace(/\*(.*?)\*/g, '$1')     // italic
+        .replace(/`(.*?)`/g, '$1')       // inline code
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // links
+        .trim();
+      
+      // Truncate to maxLength
+      if (cleaned.length > maxLength) {
+        cleaned = cleaned.substring(0, maxLength).trim();
+        // Try to break at a word boundary
+        const lastSpace = cleaned.lastIndexOf(' ');
+        if (lastSpace > maxLength * 0.7) {
+          cleaned = cleaned.substring(0, lastSpace);
+        }
+        cleaned += '...';
+      }
+      
+      return cleaned;
+    }
+  }
+  
+  // Fallback: just take the first maxLength characters
+  const fallback = content.replace(/\n/g, ' ').trim();
+  if (fallback.length > maxLength) {
+    return fallback.substring(0, maxLength).trim() + '...';
+  }
+  return fallback;
+}
+
 interface CustomNipCardProps {
   event: NostrEvent;
   /** Maximum number of kinds to display before showing "+X more" */
@@ -26,6 +102,7 @@ export function CustomNipCard({
   const title = event.tags.find((tag: string[]) => tag[0] === 'title')?.[1] || 'Untitled NIP';
   const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
   const dTag = event.tags.find((tag: string[]) => tag[0] === 'd')?.[1] || '';
+  const contentPreview = extractFirstParagraph(event.content, 140);
   
   const naddr = nip19.naddrEncode({
     identifier: dTag,
@@ -50,6 +127,12 @@ export function CustomNipCard({
               {actions}
             </div>
           </div>
+          
+          {contentPreview && (
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              {contentPreview}
+            </p>
+          )}
           
           {kinds.length > 0 && (
             <div className="flex items-center flex-wrap gap-1">
