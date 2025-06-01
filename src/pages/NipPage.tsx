@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
+import { CommentsSection } from '@/components/CommentsSection';
 import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useCustomNip } from '@/hooks/useCustomNip';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -280,6 +281,9 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             <MarkdownRenderer content={event!.content} />
           </CardContent>
         </Card>
+
+        {/* Comments Section */}
+        <CommentsSection naddr={naddr} />
 
         {isOwner && event && (
           <DeleteNipDialog
