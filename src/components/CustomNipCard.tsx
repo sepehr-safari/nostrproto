@@ -168,9 +168,16 @@ export function CustomNipCard({
                   {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors truncate min-w-0 flex-1">
+              <button 
+                className="text-xs text-muted-foreground hover:text-primary transition-colors truncate min-w-0 flex-1 text-left"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/${nip19.npubEncode(event.pubkey)}`);
+                }}
+              >
                 {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event.pubkey.slice(0, 8)}...`}
-              </span>
+              </button>
               <span className="text-xs text-muted-foreground/60 flex-shrink-0">
                 {new Date(event.created_at * 1000).toLocaleDateString()}
               </span>

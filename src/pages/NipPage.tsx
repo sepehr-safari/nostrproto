@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
@@ -277,9 +278,12 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium text-accent">
+                <Link 
+                  to={`/${nip19.npubEncode(event!.pubkey)}`}
+                  className="font-medium text-accent hover:text-primary transition-colors"
+                >
                   {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event?.pubkey.slice(0, 8)}...`}
-                </p>
+                </Link>
                 <p className="text-sm text-muted-foreground">
                   Published {new Date(event!.created_at * 1000).toLocaleDateString()}
                 </p>

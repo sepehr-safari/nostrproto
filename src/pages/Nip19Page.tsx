@@ -1,6 +1,7 @@
 import { useParams, Navigate } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import NipPage from './NipPage';
+import AuthorPage from './AuthorPage';
 import NotFound from './NotFound';
 
 export default function Nip19Page() {
@@ -29,6 +30,9 @@ export default function Nip19Page() {
       // For now, we'll treat these as custom NIPs too
       // You might want to handle these differently in the future
       return <NipPage nipId={nip19Param} isOfficialNip={false} />;
+    } else if (decoded.type === 'npub' || decoded.type === 'nprofile') {
+      // Author page for npub and nprofile identifiers
+      return <AuthorPage />;
     } else {
       // Unsupported nip19 type, fall through to 404
       return <NotFound />;
