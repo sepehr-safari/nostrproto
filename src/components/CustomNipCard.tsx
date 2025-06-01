@@ -162,12 +162,21 @@ export function CustomNipCard({
             )}
             
             <div className="flex items-center space-x-2 min-w-0 mt-auto">
-              <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-2 ring-accent/20 flex-shrink-0">
-                <AvatarImage src={author.data?.metadata?.picture} />
-                <AvatarFallback className="text-xs bg-accent/10 text-accent">
-                  {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
+              <button
+                className="flex-shrink-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/${nip19.npubEncode(event.pubkey)}`);
+                }}
+              >
+                <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-2 ring-accent/20 hover:ring-primary/30 transition-all">
+                  <AvatarImage src={author.data?.metadata?.picture} />
+                  <AvatarFallback className="text-xs bg-accent/10 text-accent">
+                    {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
               <button 
                 className="text-xs text-muted-foreground hover:text-primary transition-colors truncate min-w-0 flex-1 text-left"
                 onClick={(e) => {

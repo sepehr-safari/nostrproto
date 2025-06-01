@@ -50,14 +50,21 @@ export function NotificationItem({ event }: NotificationItemProps) {
     <Card className={`hover:shadow-md transition-shadow ${isUnread ? 'bg-blue-50/50 border-blue-200' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={profileImage} alt={displayName} />
-            <AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
+          <Link to={`/${nip19.npubEncode(event.pubkey)}`}>
+            <Avatar className="h-10 w-10 hover:ring-2 hover:ring-primary/30 transition-all cursor-pointer">
+              <AvatarImage src={profileImage} alt={displayName} />
+              <AvatarFallback>{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+          </Link>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <span className="font-medium text-sm">{displayName}</span>
+              <Link 
+                to={`/${nip19.npubEncode(event.pubkey)}`}
+                className="font-medium text-sm hover:text-primary transition-colors"
+              >
+                {displayName}
+              </Link>
               {isUnread && (
                 <div className="w-2 h-2 bg-blue-500 rounded-full" aria-label="Unread notification" />
               )}

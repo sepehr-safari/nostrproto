@@ -271,12 +271,14 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             </div>
             
             <div className="flex items-center space-x-3 pt-6 border-t border-white/10">
-              <Avatar className="h-10 w-10 ring-2 ring-accent/30">
-                <AvatarImage src={author.data?.metadata?.picture} />
-                <AvatarFallback className="bg-accent/10 text-accent">
-                  {author.data?.metadata?.name?.[0] || event?.pubkey.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
+              <Link to={`/${nip19.npubEncode(event!.pubkey)}`}>
+                <Avatar className="h-10 w-10 ring-2 ring-accent/30 hover:ring-primary/40 transition-all cursor-pointer">
+                  <AvatarImage src={author.data?.metadata?.picture} />
+                  <AvatarFallback className="bg-accent/10 text-accent">
+                    {author.data?.metadata?.name?.[0] || event?.pubkey.slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div>
                 <Link 
                   to={`/${nip19.npubEncode(event!.pubkey)}`}
