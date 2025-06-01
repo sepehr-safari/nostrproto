@@ -10,6 +10,7 @@ import { CommentForm } from '@/components/CommentForm';
 import { NoteContent } from '@/components/NoteContent';
 import { EventSourceDialog } from '@/components/EventSourceDialog';
 import { CommentReactions } from '@/components/CommentReactions';
+import { AddReactionButton } from '@/components/AddReactionButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -104,6 +105,8 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
                   <MessageSquare className="h-3 w-3 mr-1" />
                   Reply
                 </Button>
+
+                <AddReactionButton comment={comment} />
                 
                 {hasReplies && (
                   <Collapsible open={showReplies} onOpenChange={setShowReplies}>

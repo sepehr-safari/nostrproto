@@ -29,10 +29,35 @@ export function useCommentReactions(comment: NostrEvent | undefined) {
         }
       ], { signal });
 
+      // Query for deletion events that might delete these reactions
+      const reactionIds = reactions.map(r => r.id);
+      const deletions = reactionIds.length > 0 ? await nostr.query([
+        {
+          kinds: [5],
+          '#e': reactionIds,
+          '#k': ['7'],
+        }
+      ], { signal }) : [];
+
+      // Create a set of deleted reaction IDs
+      const deletedReactionIds = new Set<string>();
+      deletions.forEach(deletion => {
+        deletion.tags.forEach(tag => {
+          if (tag[0] === 'e' && tag[1]) {
+            deletedReactionIds.add(tag[1]);
+          }
+        });
+      });
+
+      // Filter out deleted reactions
+      const validReactions = reactions.filter(reaction => 
+        !deletedReactionIds.has(reaction.id)
+      );
+
       // Group reactions by content (emoji/reaction type)
       const reactionMap = new Map<string, { users: string[], events: NostrEvent[] }>();
       
-      reactions.forEach(reaction => {
+      validReactions.forEach(reaction => {
         const content = reaction.content || '+'; // Treat empty as '+'
         if (!reactionMap.has(content)) {
           reactionMap.set(content, { users: [], events: [] });
