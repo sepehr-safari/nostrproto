@@ -122,14 +122,15 @@ The data may be transformed into a more appropriate format if needed, and multip
 To display profile data for a user by their Nostr pubkey (such as an event author), use the `useAuthor` hook.
 
 ```tsx
-import { NostrEvent, NostrMetadata } from '@nostrify/nostrify';
+import type { NostrEvent, NostrMetadata } from '@nostrify/nostrify';
 import { useAuthor } from '@/hooks/useAuthor';
+import { genUserName } from '@/lib/genUserName';
 
 function Post({ event }: { event: NostrEvent }) {
   const author = useAuthor(event.pubkey);
   const metadata: NostrMetadata | undefined = author.data?.metadata;
 
-  const displayName = metadata?.name || event.pubkey.slice(0, 8);
+  const displayName = metadata?.name ?? genUserName(event.pubkey);
   const profileImage = metadata?.picture;
 
   // ...render elements with this data
@@ -210,13 +211,15 @@ function MyComponent() {
     <div>
       {/* other components ... */}
 
-      <LoginArea />
+      <LoginArea className="max-w-60" />
     </div>
   );
 }
 ```
 
-The `LoginArea` component displays a "Log in" button when the user is logged out, and changes to an account switcher once the user is logged in. It handles all the login-related UI and interactions internally, including displaying login dialogs and switching between accounts. It should not be wrapped in any conditional logic.
+The `LoginArea` component handles all the login-related UI and interactions, including displaying login dialogs and switching between accounts. It should not be wrapped in any conditional logic.
+
+`LoginArea` displays a "Log in" button when the user is logged out, and changes to an account switcher once the user is logged in. It is an inline-flex element by default. To make it expand to the width of its container, you can pass a className like `flex` (to make it a block element) or `w-full`. If it is left as inline-flex, it's recommended to set a max width.
 
 ### `npub`, `naddr`, and other Nostr addresses
 
