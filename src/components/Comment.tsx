@@ -3,14 +3,17 @@ import { Link } from 'react-router-dom';
 import { NostrEvent } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNipComments } from '@/hooks/useNipComments';
+import { useDeleteComment } from '@/hooks/useDeleteComment';
 import { CommentForm } from '@/components/CommentForm';
 import { NoteContent } from '@/components/NoteContent';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { MessageSquare, ChevronDown, ChevronRight } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { MessageSquare, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
 
@@ -26,7 +29,9 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
   
   const author = useAuthor(comment.pubkey);
+  const { user } = useCurrentUser();
   const { data: commentsData } = useNipComments(naddr);
+  const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
   
   const metadata = author.data?.metadata;
   const displayName = metadata?.name ?? genUserName(comment.pubkey)
@@ -35,6 +40,13 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
   // Get direct replies to this comment
   const replies = commentsData?.getDirectReplies(comment.id) || [];
   const hasReplies = replies.length > 0;
+
+  // Check if current user owns this comment
+  const isOwner = user?.pubkey === comment.pubkey;
+
+  const handleDelete = () => {
+    deleteComment({ comment });
+  };
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
@@ -70,30 +82,67 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
             </div>
 
             {/* Comment Actions */}
-            <div className="flex items-center space-x-2 pt-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowReplyForm(!showReplyForm)}
-                className="h-8 px-2 text-xs"
-              >
-                <MessageSquare className="h-3 w-3 mr-1" />
-                Reply
-              </Button>
-              
-              {hasReplies && (
-                <Collapsible open={showReplies} onOpenChange={setShowReplies}>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
-                      {showReplies ? (
-                        <ChevronDown className="h-3 w-3 mr-1" />
-                      ) : (
-                        <ChevronRight className="h-3 w-3 mr-1" />
-                      )}
-                      {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className="h-8 px-2 text-xs"
+                >
+                  <MessageSquare className="h-3 w-3 mr-1" />
+                  Reply
+                </Button>
+                
+                {hasReplies && (
+                  <Collapsible open={showReplies} onOpenChange={setShowReplies}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                        {showReplies ? (
+                          <ChevronDown className="h-3 w-3 mr-1" />
+                        ) : (
+                          <ChevronRight className="h-3 w-3 mr-1" />
+                        )}
+                        {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+                      </Button>
+                    </CollapsibleTrigger>
+                  </Collapsible>
+                )}
+              </div>
+
+              {/* Delete button for comment owner */}
+              {isOwner && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                      disabled={isDeleting}
+                      aria-label="Delete comment"
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
-                  </CollapsibleTrigger>
-                </Collapsible>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Comment</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this comment? This action will send a deletion request to relays, but the comment may still be visible on some clients or relays that don't support deletion.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           </div>
