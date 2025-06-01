@@ -1,34 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const STORAGE_KEY_PREFIX = 'nostr-notifications-read-';
 
 export function useNotificationReadState() {
   const { user } = useCurrentUser();
-  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
 
   const storageKey = user?.pubkey ? `${STORAGE_KEY_PREFIX}${user.pubkey}` : null;
 
-  // Load read notifications from localStorage on mount
-  useEffect(() => {
+  // Load read notifications from localStorage synchronously
+  const initialReadNotifications = useMemo(() => {
     if (!storageKey) {
-      setReadNotifications(new Set());
-      return;
+      return new Set<string>();
     }
 
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         const readIds = JSON.parse(stored) as string[];
-        setReadNotifications(new Set(readIds));
+        return new Set(readIds);
       } else {
-        setReadNotifications(new Set());
+        return new Set<string>();
       }
     } catch (error) {
       console.warn('Failed to load read notifications from localStorage:', error);
-      setReadNotifications(new Set());
+      return new Set<string>();
     }
   }, [storageKey]);
+
+  const [readNotifications, setReadNotifications] = useState<Set<string>>(initialReadNotifications);
+
+  // Update state when user changes (for account switching)
+  useEffect(() => {
+    setReadNotifications(initialReadNotifications);
+  }, [initialReadNotifications]);
 
   // Save read notifications to localStorage
   const saveToStorage = useCallback((readIds: Set<string>) => {
