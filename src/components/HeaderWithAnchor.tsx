@@ -15,9 +15,9 @@ export function HeaderWithAnchor({ level, children, className, ...props }: Heade
   
   return (
     <Tag id={id} className={`group ${className}`} {...props}>
-      <a href={`#${id}`} className="flex items-center no-underline hover:no-underline">
-        {children}
-        <Link className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-muted-foreground" />
+      <a href={`#${id}`} className="inline-flex items-center flex-wrap gap-x-2 no-underline hover:no-underline">
+        <span className="flex-1 min-w-0">{children}</span>
+        <Link className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-muted-foreground flex-shrink-0 -mt-0.5" />
       </a>
     </Tag>
   );
