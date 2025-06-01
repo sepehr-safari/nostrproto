@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Footer } from "@/components/Footer";
-import { BookOpen, Plus, User, Zap, Menu } from "lucide-react";
+import { BookOpen, Plus, User, Zap, Menu, Bell } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   Sheet,
@@ -49,6 +49,12 @@ export function Layout({ children }: LayoutProps) {
                   My NIPs
                 </Link>
               </Button>
+              <Button variant="ghost" asChild className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
+                <Link to="/notifications">
+                  <Bell className="h-4 w-4 mr-2" />
+                  Notifications
+                </Link>
+              </Button>
               <div className="ml-4">
                 <LoginArea />
               </div>
@@ -83,6 +89,12 @@ export function Layout({ children }: LayoutProps) {
                       <Link to="/my-nips">
                         <User className="h-4 w-4 mr-3" />
                         My NIPs
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" asChild className="justify-start text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
+                      <Link to="/notifications">
+                        <Bell className="h-4 w-4 mr-3" />
+                        Notifications
                       </Link>
                     </Button>
                     <Button variant="ghost" asChild className="justify-start text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">

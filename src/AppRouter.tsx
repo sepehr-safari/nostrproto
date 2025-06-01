@@ -7,6 +7,7 @@ import NipRedirect from "./pages/NipRedirect";
 import CreateNipPage from "./pages/CreateNipPage";
 import EditNipPage from "./pages/EditNipPage";
 import MyNipsPage from "./pages/MyNipsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import KindPage from "./pages/KindPage";
 import { ScrollToTop } from "./components/ScrollToTop";
 
@@ -20,6 +21,7 @@ export function AppRouter() {
         <Route path="/create" element={<CreateNipPage />} />
         <Route path="/edit/:naddr" element={<EditNipPage />} />
         <Route path="/my-nips" element={<MyNipsPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/kind/:k" element={<KindPage />} />
         <Route path="/:nip19" element={<Nip19Page />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

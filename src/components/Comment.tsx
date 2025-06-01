@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MessageSquare, ChevronDown, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { genUserName } from '@/lib/genUserName';
 
 interface CommentProps {
   comment: NostrEvent;
@@ -26,7 +27,7 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
   const { data: replies = [], isLoading: repliesLoading } = useCommentReplies(comment.id);
   
   const metadata = author.data?.metadata;
-  const displayName = metadata?.display_name || metadata?.name || `${comment.pubkey.slice(0, 8)}...`;
+  const displayName = metadata?.name ?? genUserName(comment.pubkey)
   const timeAgo = formatDistanceToNow(new Date(comment.created_at * 1000), { addSuffix: true });
 
   const hasReplies = replies.length > 0;
@@ -43,7 +44,7 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={metadata?.picture} />
                   <AvatarFallback className="text-xs">
-                    {metadata?.name?.[0] || comment.pubkey.slice(0, 2)}
+                    {displayName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
