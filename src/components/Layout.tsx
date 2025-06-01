@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Footer } from "@/components/Footer";
 import { BookOpen, Plus, User, Zap, Menu, Bell } from "lucide-react";
+import { NotificationCounter } from "@/components/NotificationCounter";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   Sheet,
@@ -50,9 +51,10 @@ export function Layout({ children }: LayoutProps) {
                 </Link>
               </Button>
               <Button variant="ghost" asChild className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
-                <Link to="/notifications">
+                <Link to="/notifications" className="relative">
                   <Bell className="h-4 w-4 mr-2" />
                   Notifications
+                  <NotificationCounter />
                 </Link>
               </Button>
               <div className="ml-4">
@@ -69,9 +71,10 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
+                  <Button variant="ghost" size="sm" className="text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 relative">
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Open menu</span>
+                    <NotificationCounter />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[280px] sm:w-[400px] glass border-primary/20">
@@ -92,9 +95,10 @@ export function Layout({ children }: LayoutProps) {
                       </Link>
                     </Button>
                     <Button variant="ghost" asChild className="justify-start text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">
-                      <Link to="/notifications">
+                      <Link to="/notifications" className="relative">
                         <Bell className="h-4 w-4 mr-3" />
                         Notifications
+                        <NotificationCounter />
                       </Link>
                     </Button>
                     <Button variant="ghost" asChild className="justify-start text-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300">

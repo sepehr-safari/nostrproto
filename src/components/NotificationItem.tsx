@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useNotificationReadState } from '@/hooks/useNotificationReadState';
 import { genUserName } from '@/lib/genUserName';
 import { formatDistanceToNow } from 'date-fns';
 import { Heart, MessageCircle } from 'lucide-react';
@@ -17,6 +19,7 @@ interface NotificationItemProps {
 export function NotificationItem({ event }: NotificationItemProps) {
   const author = useAuthor(event.pubkey);
   const metadata = author.data?.metadata;
+  const { markAsRead, isRead } = useNotificationReadState();
   
   const displayName = metadata?.name ?? genUserName(event.pubkey);
   const profileImage = metadata?.picture;
@@ -27,11 +30,24 @@ export function NotificationItem({ event }: NotificationItemProps) {
   
   const isReaction = event.kind === 7;
   const isComment = event.kind === 1111;
+  const isUnread = !isRead(event.id);
   
   const timeAgo = formatDistanceToNow(new Date(event.created_at * 1000), { addSuffix: true });
 
+  // Mark as read when the component is rendered (viewed)
+  useEffect(() => {
+    if (isUnread) {
+      // Use a small delay to ensure the user actually sees the notification
+      const timer = setTimeout(() => {
+        markAsRead(event.id);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [event.id, isUnread, markAsRead]);
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className={`hover:shadow-md transition-shadow ${isUnread ? 'bg-blue-50/50 border-blue-200' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10">
@@ -42,6 +58,9 @@ export function NotificationItem({ event }: NotificationItemProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
               <span className="font-medium text-sm">{displayName}</span>
+              {isUnread && (
+                <div className="w-2 h-2 bg-blue-500 rounded-full" aria-label="Unread notification" />
+              )}
               {isReaction && (
                 <Badge variant="secondary" className="text-xs">
                   <Heart className="h-3 w-3 mr-1" />

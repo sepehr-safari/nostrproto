@@ -16,6 +16,17 @@ vi.mock('@/hooks/useAuthor', () => ({
   }),
 }));
 
+// Mock the useNotificationReadState hook
+const mockMarkAsRead = vi.fn();
+const mockIsRead = vi.fn().mockReturnValue(false);
+
+vi.mock('@/hooks/useNotificationReadState', () => ({
+  useNotificationReadState: () => ({
+    markAsRead: mockMarkAsRead,
+    isRead: mockIsRead,
+  }),
+}));
+
 const mockReactionEvent: NostrEvent = {
   id: 'reaction-1',
   pubkey: 'a'.repeat(64), // Valid 64-char hex pubkey
@@ -81,5 +92,15 @@ describe('NotificationItem', () => {
 
     // Should show some form of time ago text
     expect(screen.getByText(/ago$/)).toBeInTheDocument();
+  });
+
+  it('should show unread indicator for unread notifications', () => {
+    render(
+      <TestApp>
+        <NotificationItem event={mockReactionEvent} />
+      </TestApp>
+    );
+
+    expect(screen.getByLabelText('Unread notification')).toBeInTheDocument();
   });
 });

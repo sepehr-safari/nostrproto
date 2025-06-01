@@ -3,15 +3,25 @@ import { Layout } from '@/components/Layout';
 import { NotificationItem } from '@/components/NotificationItem';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useNotificationReadState } from '@/hooks/useNotificationReadState';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Bell, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Bell, AlertCircle, CheckCheck } from 'lucide-react';
 
 export default function NotificationsPage() {
   const { user } = useCurrentUser();
   const { data: notifications, isLoading, error } = useNotifications();
+  const { markAllAsRead, getUnreadCount } = useNotificationReadState();
+
+  const unreadCount = notifications ? getUnreadCount(notifications.map(n => n.id)) : 0;
+
+  const handleMarkAllAsRead = () => {
+    if (notifications) {
+      markAllAsRead(notifications.map(n => n.id));
+    }
+  };
 
   if (!user) {
     return (
@@ -47,9 +57,27 @@ export default function NotificationsPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Bell className="h-6 w-6" />
-            <h1 className="text-3xl font-bold">Notifications</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bell className="h-6 w-6" />
+              <h1 className="text-3xl font-bold">Notifications</h1>
+              {unreadCount > 0 && (
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
+            {notifications && notifications.length > 0 && unreadCount > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleMarkAllAsRead}
+                className="flex items-center space-x-2"
+              >
+                <CheckCheck className="h-4 w-4" />
+                <span>Mark all as read</span>
+              </Button>
+            )}
           </div>
           <p className="text-muted-foreground">
             Reactions and comments on your custom NIPs
