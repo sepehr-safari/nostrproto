@@ -199,41 +199,45 @@ function CustomNipCard({ event }: { event: NostrEvent }) {
   return (
     <Card className="glass border-accent/20 hover:border-accent/40 transition-all duration-300 hover:shadow-lg hover:shadow-accent/10 group">
       <CardContent className="p-3 sm:p-4 card-content">
-        <Link to={`/${naddr}`} className="block">
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-accent group-hover:text-primary transition-colors text-sm sm:text-base leading-tight min-w-0 flex-1">{title}</h3>
-              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 text-xs flex-shrink-0">Custom</Badge>
-            </div>
-            
-            {kinds.length > 0 && (
-              <div className="flex items-center flex-wrap gap-1">
-                <span className="text-xs text-muted-foreground flex-shrink-0">Kinds:</span>
-                {kinds.slice(0, 2).map(kind => (
-                  <Badge key={kind} variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">{kind}</Badge>
-                ))}
-                {kinds.length > 2 && (
-                  <span className="text-xs text-muted-foreground">+{kinds.length - 2} more</span>
-                )}
-              </div>
-            )}
-            
-            <div className="flex items-center space-x-2 min-w-0">
-              <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-2 ring-accent/20 flex-shrink-0">
-                <AvatarImage src={author.data?.metadata?.picture} />
-                <AvatarFallback className="text-xs bg-accent/10 text-accent">
-                  {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors truncate min-w-0 flex-1">
-                {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event.pubkey.slice(0, 8)}...`}
-              </span>
-              <span className="text-xs text-muted-foreground/60 flex-shrink-0">
-                {new Date(event.created_at * 1000).toLocaleDateString()}
-              </span>
-            </div>
+        <div className="space-y-2 sm:space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <Link to={`/${naddr}`} className="flex-1 min-w-0">
+              <h3 className="font-semibold text-accent group-hover:text-primary transition-colors text-sm sm:text-base leading-tight hover:underline">{title}</h3>
+            </Link>
+            <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 text-xs flex-shrink-0">Custom</Badge>
           </div>
-        </Link>
+          
+          {kinds.length > 0 && (
+            <div className="flex items-center flex-wrap gap-1">
+              <span className="text-xs text-muted-foreground flex-shrink-0">Kinds:</span>
+              {kinds.slice(0, 2).map(kind => (
+                <Link key={kind} to={`/kind/${kind}`}>
+                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer">
+                    {kind}
+                  </Badge>
+                </Link>
+              ))}
+              {kinds.length > 2 && (
+                <span className="text-xs text-muted-foreground">+{kinds.length - 2} more</span>
+              )}
+            </div>
+          )}
+          
+          <div className="flex items-center space-x-2 min-w-0">
+            <Avatar className="h-5 w-5 sm:h-6 sm:w-6 ring-2 ring-accent/20 flex-shrink-0">
+              <AvatarImage src={author.data?.metadata?.picture} />
+              <AvatarFallback className="text-xs bg-accent/10 text-accent">
+                {author.data?.metadata?.name?.[0] || event.pubkey.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors truncate min-w-0 flex-1">
+              {author.data?.metadata?.display_name || author.data?.metadata?.name || `${event.pubkey.slice(0, 8)}...`}
+            </span>
+            <span className="text-xs text-muted-foreground/60 flex-shrink-0">
+              {new Date(event.created_at * 1000).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

@@ -253,7 +253,11 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                     <div className="flex items-center flex-wrap gap-1">
                       <span className="text-sm text-muted-foreground">Kinds:</span>
                       {kinds.map(kind => (
-                        <Badge key={kind} variant="secondary" className="bg-primary/10 text-primary border-primary/20">{kind}</Badge>
+                        <Link key={kind} to={`/kind/${kind}`}>
+                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer">
+                            {kind}
+                          </Badge>
+                        </Link>
                       ))}
                     </div>
                   )}

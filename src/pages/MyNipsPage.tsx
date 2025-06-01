@@ -161,7 +161,11 @@ function MyNipCard({ event }: { event: NostrEvent }) {
                   <div className="flex items-center space-x-1">
                     <span className="text-sm text-muted-foreground">Kinds:</span>
                     {kinds.slice(0, 3).map(kind => (
-                      <Badge key={kind} variant="secondary">{kind}</Badge>
+                      <Link key={kind} to={`/kind/${kind}`}>
+                        <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
+                          {kind}
+                        </Badge>
+                      </Link>
                     ))}
                     {kinds.length > 3 && (
                       <span className="text-sm text-muted-foreground">+{kinds.length - 3} more</span>
