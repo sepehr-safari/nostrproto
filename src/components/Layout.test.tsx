@@ -47,7 +47,7 @@ describe('Layout', () => {
     expect(counters.length).toBeGreaterThan(0);
     
     // Should have the hamburger menu button
-    expect(screen.getByLabelText('Open menu')).toBeInTheDocument();
+    expect(screen.getByText('Open menu')).toBeInTheDocument();
   });
 
   it('should render the main content', () => {
