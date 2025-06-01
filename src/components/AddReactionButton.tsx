@@ -61,26 +61,7 @@ export function AddReactionButton({ comment }: AddReactionButtonProps) {
               </Button>
             ))}
           </div>
-          <div className="pt-2 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleReaction('+')}
-              className="w-full justify-start text-xs"
-              disabled={isPending}
-            >
-              👍 Like
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleReaction('-')}
-              className="w-full justify-start text-xs"
-              disabled={isPending}
-            >
-              👎 Dislike
-            </Button>
-          </div>
+
         </div>
       </PopoverContent>
     </Popover>
