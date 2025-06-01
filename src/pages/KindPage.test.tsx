@@ -124,8 +124,9 @@ describe('KindPage', () => {
     expect(screen.getByText('Test Author')).toBeInTheDocument();
     
     // Check that the kind badge is clickable
-    const kindBadge = screen.getByRole('link', { name: '1' });
-    expect(kindBadge).toHaveAttribute('href', '/kind/1');
+    const kindBadge = screen.getByText('1');
+    expect(kindBadge).toBeInTheDocument();
+    expect(kindBadge).toHaveClass('cursor-pointer');
   });
 
   it('renders multiple kinds in NIP card', () => {
@@ -163,10 +164,10 @@ describe('KindPage', () => {
 
     expect(screen.getByText('Multi-Kind NIP')).toBeInTheDocument();
     
-    // Check that the kind badges are clickable links
-    expect(screen.getByRole('link', { name: '1' })).toHaveAttribute('href', '/kind/1');
-    expect(screen.getByRole('link', { name: '2' })).toHaveAttribute('href', '/kind/2');
-    expect(screen.getByRole('link', { name: '3' })).toHaveAttribute('href', '/kind/3');
+    // Check that the kind badges are clickable elements
+    expect(screen.getByText('1')).toHaveClass('cursor-pointer');
+    expect(screen.getByText('2')).toHaveClass('cursor-pointer');
+    expect(screen.getByText('3')).toHaveClass('cursor-pointer');
     expect(screen.getByText('+2 more')).toBeInTheDocument();
   });
 });

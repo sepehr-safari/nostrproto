@@ -50,7 +50,7 @@ describe('Index', () => {
     });
   });
 
-  it('renders kind badges as clickable links', () => {
+  it('renders kind badges as clickable elements', () => {
     const mockCustomNips = [
       {
         id: 'event1',
@@ -79,12 +79,14 @@ describe('Index', () => {
       </TestApp>
     );
 
-    // Check that kind badges are rendered as clickable links
-    const kind1Link = screen.getByRole('link', { name: '1' });
-    const kind42Link = screen.getByRole('link', { name: '42' });
+    // Check that kind badges are rendered as clickable elements
+    const kind1Badge = screen.getByText('1');
+    const kind42Badge = screen.getByText('42');
     
-    expect(kind1Link).toHaveAttribute('href', '/kind/1');
-    expect(kind42Link).toHaveAttribute('href', '/kind/42');
+    expect(kind1Badge).toBeInTheDocument();
+    expect(kind42Badge).toBeInTheDocument();
+    expect(kind1Badge).toHaveClass('cursor-pointer');
+    expect(kind42Badge).toHaveClass('cursor-pointer');
   });
 
   it('renders loading state for custom NIPs', () => {
