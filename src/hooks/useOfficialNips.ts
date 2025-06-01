@@ -4,7 +4,6 @@ export interface OfficialNip {
   number: string;
   title: string;
   deprecated?: boolean;
-  unrecommended?: boolean;
   note?: string;
 }
 
@@ -20,7 +19,7 @@ const parseNipsFromReadme = (readmeContent: string): OfficialNip[] => {
       
       // Check for additional notes (deprecated, unrecommended, etc.)
       let deprecated = false;
-      let unrecommended = false;
+
       let note: string | undefined;
       
       // Look for notes after the link
@@ -29,10 +28,8 @@ const parseNipsFromReadme = (readmeContent: string): OfficialNip[] => {
         const noteText = noteMatch[1];
         note = noteText;
         
-        if (noteText.includes('**unrecommended**')) {
-          unrecommended = true;
-        }
-        if (noteText.includes('deprecated')) {
+        // Set deprecated flag if either "unrecommended" or "deprecated" appears
+        if (noteText.includes('unrecommended') || noteText.includes('deprecated')) {
           deprecated = true;
         }
       }
@@ -41,7 +38,6 @@ const parseNipsFromReadme = (readmeContent: string): OfficialNip[] => {
         number,
         title,
         deprecated,
-        unrecommended,
         note,
       });
     }

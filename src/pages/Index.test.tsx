@@ -32,7 +32,7 @@ describe('Index', () => {
           number: '01',
           title: 'Basic protocol flow description',
           note: null,
-          unrecommended: false,
+
           deprecated: false,
         },
       ],
@@ -99,7 +99,7 @@ describe('Index', () => {
       </TestApp>
     );
 
-    expect(screen.getByText('Recent Custom NIPs')).toBeInTheDocument();
+    expect(screen.getByText('Custom NIPs')).toBeInTheDocument();
   });
 
   it('renders empty state when no custom NIPs exist', () => {

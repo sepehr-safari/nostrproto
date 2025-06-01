@@ -164,11 +164,8 @@ const Index = () => {
                               </div>
                               <div className="flex flex-wrap gap-1 mt-3">
                                 <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
-                                {nip.unrecommended && (
-                                  <Badge variant="destructive" className="text-xs">Unrecommended</Badge>
-                                )}
                                 {nip.deprecated && (
-                                  <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">Deprecated</Badge>
+                                  <Badge variant="destructive" className="text-xs">Deprecated</Badge>
                                 )}
                               </div>
                             </div>
