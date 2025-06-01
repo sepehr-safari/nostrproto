@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
 import { CommentsSection } from '@/components/CommentsSection';
+import { LikeButton } from '@/components/LikeButton';
 import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useCustomNip } from '@/hooks/useCustomNip';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -244,8 +245,8 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
         
         <Card className="glass border-accent/20 shadow-lg shadow-accent/5">
           <CardHeader className="border-b border-accent/10">
-            <div className="flex items-center justify-between">
-              <div className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="space-y-3 flex-1">
                 <CardTitle className="text-2xl sm:text-3xl gradient-text break-words">{title}</CardTitle>
                 <div className="flex items-center flex-wrap gap-2">
                   <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">Custom Protocol</Badge>
@@ -262,6 +263,9 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
                     </div>
                   )}
                 </div>
+              </div>
+              <div className="ml-4">
+                <LikeButton event={event!} naddr={naddr} />
               </div>
             </div>
             
