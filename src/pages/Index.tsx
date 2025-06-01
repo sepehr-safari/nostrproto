@@ -8,11 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Search, BookOpen, Users, Plus, AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { CarouselApi } from '@/components/ui/carousel';
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const carouselRef = useRef<HTMLDivElement>(null);
   const { data: recentNips, isLoading: isLoadingRecent } = useRecentCustomNips();
   const { data: officialNips, isLoading: isLoadingOfficial, error: officialNipsError } = useOfficialNips();
 
@@ -21,6 +25,38 @@ const Index = () => {
       nip.number.includes(searchTerm) || 
       nip.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  useEffect(() => {
+    const carouselElement = carouselRef.current;
+    if (!carouselElement || !carouselApi) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Handle horizontal scrolling (left/right)
+      if (e.deltaX !== 0) {
+        e.preventDefault();
+        if (e.deltaX > 0) {
+          carouselApi.scrollNext();
+        } else {
+          carouselApi.scrollPrev();
+        }
+      }
+      // Optionally convert vertical scrolling to horizontal when over carousel
+      else if (e.deltaY !== 0) {
+        e.preventDefault();
+        if (e.deltaY > 0) {
+          carouselApi.scrollNext();
+        } else {
+          carouselApi.scrollPrev();
+        }
+      }
+    };
+
+    carouselElement.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      carouselElement.removeEventListener('wheel', handleWheel);
+    };
+  }, [carouselApi]);
 
   return (
     <Layout>
@@ -69,111 +105,128 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Official NIPs */}
-          <div className="space-y-4 sm:space-y-6 min-w-0">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
-                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold gradient-text truncate">Official NIPs</h2>
+        {/* Official NIPs - Horizontal Slider */}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
+              <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
             </div>
-            
-            <div className="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto mobile-safe">
-              {isLoadingOfficial ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : officialNipsError ? (
-                <Card>
-                  <CardContent className="p-4 text-center text-muted-foreground">
-                    <div className="flex items-center justify-center space-x-2 text-destructive">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>Failed to load official NIPs</span>
+            <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Official NIPs</h2>
+          </div>
+          
+          {isLoadingOfficial ? (
+            <div className="flex space-x-4 overflow-hidden">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Card key={i} className="flex-shrink-0 w-80">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
                     </div>
                   </CardContent>
                 </Card>
-              ) : filteredOfficialNips.length > 0 ? (
-                filteredOfficialNips.map((nip) => (
-                  <Card key={nip.number} className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
-                    <CardContent className="p-4">
-                      <Link to={`/${nip.number}`} className="block">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1 flex-1 min-w-0">
-                            <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
-                            <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">{nip.title}</p>
-                            {nip.note && (
-                              <p className="text-xs text-muted-foreground/70 italic">{nip.note}</p>
-                            )}
-                          </div>
-                          <div className="flex flex-col gap-1 flex-shrink-0 ml-2">
-                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
-                            {nip.unrecommended && (
-                              <Badge variant="destructive" className="text-xs">Unrecommended</Badge>
-                            )}
-                            {nip.deprecated && (
-                              <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">Deprecated</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="p-4 text-center text-muted-foreground">
-                    No NIPs found matching your search.
+              ))}
+            </div>
+          ) : officialNipsError ? (
+            <Card>
+              <CardContent className="p-4 text-center text-muted-foreground">
+                <div className="flex items-center justify-center space-x-2 text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Failed to load official NIPs</span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : filteredOfficialNips.length > 0 ? (
+            <div ref={carouselRef} className="overflow-hidden">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: false,
+                  dragFree: true,
+                  containScroll: false,
+                }}
+                setApi={setCarouselApi}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4 mr-8">
+                  {filteredOfficialNips.map((nip) => (
+                    <CarouselItem key={nip.number} className="pl-2 md:pl-4 basis-[85%] sm:basis-[45%] lg:basis-[30%] xl:basis-[23%]">
+                      <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group h-full">
+                        <CardContent className="p-4">
+                          <Link to={`/${nip.number}`} className="block h-full">
+                            <div className="flex flex-col justify-between h-full">
+                              <div className="space-y-1 flex-1">
+                                <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
+                                <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2">{nip.title}</p>
+                                {nip.note && (
+                                  <p className="text-xs text-muted-foreground/70 italic line-clamp-2">{nip.note}</p>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-3">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
+                                {nip.unrecommended && (
+                                  <Badge variant="destructive" className="text-xs">Unrecommended</Badge>
+                                )}
+                                {nip.deprecated && (
+                                  <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">Deprecated</Badge>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-4 text-center text-muted-foreground">
+                No NIPs found matching your search.
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Recent Custom NIPs - Unbounded List */}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Custom NIPs</h2>
+          </div>
+          
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {isLoadingRecent ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                      <div className="flex items-center space-x-2">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Custom NIPs */}
-          <div className="space-y-4 sm:space-y-6 min-w-0">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold gradient-text truncate">Recent Custom NIPs</h2>
-            </div>
-            
-            <div className="space-y-2 max-h-80 sm:max-h-96 overflow-y-auto mobile-safe">
-              {isLoadingRecent ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
-                        <div className="flex items-center space-x-2">
-                          <Skeleton className="h-6 w-6 rounded-full" />
-                          <Skeleton className="h-3 w-24" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : recentNips && recentNips.length > 0 ? (
-                recentNips.map((event) => (
-                  <CustomNipCard key={event.id} event={event} />
-                ))
-              ) : (
+              ))
+            ) : recentNips && recentNips.length > 0 ? (
+              recentNips.map((event) => (
+                <CustomNipCard key={event.id} event={event} />
+              ))
+            ) : (
+              <div className="col-span-full">
                 <Card>
                   <CardContent className="p-4 text-center text-muted-foreground">
                     No custom NIPs found. Be the first to create one!
                   </CardContent>
                 </Card>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
