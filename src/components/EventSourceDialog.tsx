@@ -1,5 +1,12 @@
 import { NostrEvent } from '@nostrify/nostrify';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEffect, useRef, useCallback } from 'react';
+import hljs from 'highlight.js/lib/core';
+import json from 'highlight.js/lib/languages/json';
+import { CodeBlock } from '@/components/CodeBlock';
+
+// Register JSON language for syntax highlighting
+hljs.registerLanguage('json', json);
 
 interface EventSourceDialogProps {
   event: NostrEvent;
@@ -8,6 +15,17 @@ interface EventSourceDialogProps {
 }
 
 export function EventSourceDialog({ event, open, onOpenChange }: EventSourceDialogProps) {
+  const jsonString = JSON.stringify(event, null, 2);
+
+  // Callback ref to ensure highlighting happens after the element is mounted
+  const setCodeRef = useCallback((node: HTMLElement | null) => {
+    if (node && open) {
+      // Clear any existing highlighting and apply new highlighting
+      node.removeAttribute('data-highlighted');
+      hljs.highlightElement(node);
+    }
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
@@ -15,9 +33,11 @@ export function EventSourceDialog({ event, open, onOpenChange }: EventSourceDial
           <DialogTitle>Event Source</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-auto">
-          <pre className="text-xs bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap break-all">
-            {JSON.stringify(event, null, 2)}
-          </pre>
+          <CodeBlock className="text-xs bg-muted p-4 rounded-md overflow-auto">
+            <code ref={setCodeRef} className="language-json whitespace-pre">
+              {jsonString}
+            </code>
+          </CodeBlock>
         </div>
       </DialogContent>
     </Dialog>

@@ -35,9 +35,11 @@ describe('EventSourceDialog', () => {
     );
 
     expect(screen.getByText('Event Source')).toBeInTheDocument();
-    expect(screen.getByText(/"kind": 30024/)).toBeInTheDocument();
-    expect(screen.getByText(/"content": "This is test content"/)).toBeInTheDocument();
-    expect(screen.getByText(/"id": "test-event-id"/)).toBeInTheDocument();
+    // Check for individual parts since syntax highlighting splits the text
+    expect(screen.getByText('"kind"')).toBeInTheDocument();
+    expect(screen.getByText('30024')).toBeInTheDocument();
+    expect(screen.getByText('"This is test content"')).toBeInTheDocument();
+    expect(screen.getByText('"test-event-id"')).toBeInTheDocument();
   });
 
   it('does not render dialog when closed', () => {
@@ -85,14 +87,20 @@ describe('EventSourceDialog', () => {
       </TestApp>
     );
 
-    // Check that the JSON content is displayed
-    expect(screen.getByText(/"kind": 30024/)).toBeInTheDocument();
-    expect(screen.getByText(/"content": "This is test content"/)).toBeInTheDocument();
-    expect(screen.getByText(/"id": "test-event-id"/)).toBeInTheDocument();
+    // Check that the JSON content is displayed with syntax highlighting
+    expect(screen.getByText('"kind"')).toBeInTheDocument();
+    expect(screen.getByText('30024')).toBeInTheDocument();
+    expect(screen.getByText('"This is test content"')).toBeInTheDocument();
+    expect(screen.getByText('"test-event-id"')).toBeInTheDocument();
     
     // Check that the pre element exists with the formatted JSON
     const preElement = document.querySelector('pre');
     expect(preElement).toBeInTheDocument();
     expect(preElement?.textContent).toContain(JSON.stringify(mockEvent, null, 2));
+    
+    // Check that syntax highlighting is applied
+    const codeElement = document.querySelector('code.language-json');
+    expect(codeElement).toBeInTheDocument();
+    expect(codeElement).toHaveAttribute('data-highlighted', 'yes');
   });
 });

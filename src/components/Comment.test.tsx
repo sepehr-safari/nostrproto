@@ -237,7 +237,10 @@ describe('Comment', () => {
     await user.click(viewSourceOption);
 
     expect(screen.getByText('Event Source')).toBeInTheDocument();
-    expect(screen.getByText(/"kind": 1111/)).toBeInTheDocument();
-    expect(screen.getByText(/"content": "This is a test comment"/)).toBeInTheDocument();
+    // Check for individual parts since syntax highlighting splits the text
+    // Check for individual parts since syntax highlighting splits the text
+    expect(screen.getByText('"kind"')).toBeInTheDocument();
+    expect(screen.getByText('1111')).toBeInTheDocument();
+    expect(screen.getByText('"This is a test comment"')).toBeInTheDocument();
   });
 });
