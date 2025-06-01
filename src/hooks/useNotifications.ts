@@ -23,8 +23,11 @@ export function useNotifications() {
         { signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) }
       );
 
+      // Filter out events created by the current user (self-notifications)
+      const filteredEvents = events.filter(event => event.pubkey !== user.pubkey);
+
       // Sort by creation time (newest first)
-      return events.sort((a, b) => b.created_at - a.created_at);
+      return filteredEvents.sort((a, b) => b.created_at - a.created_at);
     },
     enabled: !!user?.pubkey,
     staleTime: 30000, // 30 seconds
