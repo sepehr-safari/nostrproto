@@ -1,8 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { NostrLoginProvider } from '@nostrify/react/login';
-import NostrProvider from '@/components/NostrProvider';
+import { TestApp } from '@/test/TestApp';
 import { CommentsSection } from './CommentsSection';
 
 // Mock the hooks
@@ -29,21 +27,10 @@ vi.mock('@/hooks/usePostComment', () => ({
 
 describe('CommentsSection', () => {
   it('renders comments section with empty state', () => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    });
-
     render(
-      <NostrLoginProvider storageKey='test-login'>
-        <NostrProvider relays={['wss://relay.example.com']}>
-          <QueryClientProvider client={queryClient}>
-            <CommentsSection naddr="naddr1test" />
-          </QueryClientProvider>
-        </NostrProvider>
-      </NostrLoginProvider>
+      <TestApp>
+        <CommentsSection naddr="naddr1test" />
+      </TestApp>
     );
 
     expect(screen.getByText('Comments')).toBeInTheDocument();
