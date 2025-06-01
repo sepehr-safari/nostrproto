@@ -1,15 +1,17 @@
+import { lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Nip19Page from "./pages/Nip19Page";
-import NipRedirect from "./pages/NipRedirect";
-import CreateNipPage from "./pages/CreateNipPage";
-import EditNipPage from "./pages/EditNipPage";
-import MyNipsPage from "./pages/MyNipsPage";
-import NotificationsPage from "./pages/NotificationsPage";
-import KindPage from "./pages/KindPage";
-import { ScrollToTop } from "./components/ScrollToTop";
+// Lazy load page components
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Nip19Page = lazy(() => import("./pages/Nip19Page"));
+const NipRedirect = lazy(() => import("./pages/NipRedirect"));
+const CreateNipPage = lazy(() => import("./pages/CreateNipPage"));
+const EditNipPage = lazy(() => import("./pages/EditNipPage"));
+const MyNipsPage = lazy(() => import("./pages/MyNipsPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const KindPage = lazy(() => import("./pages/KindPage"));
 
 export function AppRouter() {
   return (

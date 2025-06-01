@@ -64,6 +64,7 @@ The project uses shadcn/ui components located in `@/components/ui`. These are un
 - **Skeleton**: Loading placeholder
 - **Slider**: Input for selecting a value from a range
 - **Sonner**: Toast notification manager
+- **Spinner**: Animated loading spinner
 - **Switch**: Toggle switch control
 - **Table**: Data table with headers and rows
 - **Tabs**: Tabbed interface component
@@ -341,7 +342,7 @@ To attach files to kind 1 events, each file's URL should be appended to the even
 
 ### Nostr Encryption and Decryption
 
-The logged-in user has a `signer` object (matching the NIP-07 signer interface) that can be used for encryption and decryption.
+The logged-in user has a `signer` object (matching the NIP-07 signer interface) that can be used for encryption and decryption. The signer's nip44 methods handle all cryptographic operations internally, including key derivation and conversation key management, so you never need direct access to private keys. Always use the signer interface for encryption rather than requesting private keys from users, as this maintains security and follows best practices.
 
 ```ts
 // Get the current user
