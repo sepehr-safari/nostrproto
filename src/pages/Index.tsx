@@ -110,7 +110,7 @@ const Index = () => {
         {/* Search */}
         <div className="max-w-lg mx-auto px-4">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-primary group-focus-within:text-accent transition-colors" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground group-focus-within:text-accent transition-colors z-10" />
             <Input
               placeholder="Search the protocol universe..."
               value={searchTerm}
