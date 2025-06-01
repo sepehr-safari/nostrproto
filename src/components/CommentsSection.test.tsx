@@ -6,7 +6,12 @@ import { CommentsSection } from './CommentsSection';
 // Mock the hooks
 vi.mock('@/hooks/useNipComments', () => ({
   useNipComments: () => ({
-    data: [],
+    data: {
+      allComments: [],
+      topLevelComments: [],
+      getDescendants: () => [],
+      getDirectReplies: () => [],
+    },
     isLoading: false,
     error: null,
   }),

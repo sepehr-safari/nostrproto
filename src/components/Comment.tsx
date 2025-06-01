@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { NostrEvent } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import { useAuthor } from '@/hooks/useAuthor';
-import { useCommentReplies } from '@/hooks/useNipComments';
+import { useNipComments } from '@/hooks/useNipComments';
 import { CommentForm } from '@/components/CommentForm';
 import { NoteContent } from '@/components/NoteContent';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,12 +26,14 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
   
   const author = useAuthor(comment.pubkey);
-  const { data: replies = [], isLoading: repliesLoading } = useCommentReplies(comment.id);
+  const { data: commentsData } = useNipComments(naddr);
   
   const metadata = author.data?.metadata;
   const displayName = metadata?.name ?? genUserName(comment.pubkey)
   const timeAgo = formatDistanceToNow(new Date(comment.created_at * 1000), { addSuffix: true });
 
+  // Get direct replies to this comment
+  const replies = commentsData?.getDirectReplies(comment.id) || [];
   const hasReplies = replies.length > 0;
 
   return (
@@ -115,19 +117,15 @@ export function Comment({ comment, naddr, depth = 0, maxDepth = 3 }: CommentProp
       {hasReplies && (
         <Collapsible open={showReplies} onOpenChange={setShowReplies}>
           <CollapsibleContent className="space-y-3">
-            {repliesLoading ? (
-              <div className="ml-6 text-sm text-muted-foreground">Loading replies...</div>
-            ) : (
-              replies.map((reply) => (
-                <Comment
-                  key={reply.id}
-                  comment={reply}
-                  naddr={naddr}
-                  depth={depth + 1}
-                  maxDepth={maxDepth}
-                />
-              ))
-            )}
+            {replies.map((reply) => (
+              <Comment
+                key={reply.id}
+                comment={reply}
+                naddr={naddr}
+                depth={depth + 1}
+                maxDepth={maxDepth}
+              />
+            ))}
           </CollapsibleContent>
         </Collapsible>
       )}

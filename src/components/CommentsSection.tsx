@@ -10,7 +10,8 @@ interface CommentsSectionProps {
 }
 
 export function CommentsSection({ naddr }: CommentsSectionProps) {
-  const { data: comments = [], isLoading, error } = useNipComments(naddr);
+  const { data: commentsData, isLoading, error } = useNipComments(naddr);
+  const comments = commentsData?.topLevelComments || [];
 
   if (error) {
     return (

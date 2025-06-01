@@ -16,43 +16,74 @@ export function useNipComments(naddr: string) {
       }
 
       const addr = decoded.data;
+      const addrString = `${addr.kind}:${addr.pubkey}:${addr.identifier}`;
       
-      // Query for kind 1111 comments that reference this NIP
-      const comments = await nostr.query(
+      // Query for all kind 1111 comments that reference this NIP regardless of depth
+      const allComments = await nostr.query(
         [{
           kinds: [1111],
-          '#a': [`${addr.kind}:${addr.pubkey}:${addr.identifier}`],
-          limit: 100,
+          '#A': [addrString],
+          limit: 500,
         }],
         { signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) }
       );
 
-      // Sort comments by creation time (newest first)
-      return comments.sort((a, b) => b.created_at - a.created_at);
+      // Helper function to get lowercase tag value
+      const getLowercaseTag = (event: NostrEvent, tagName: string): string | undefined => {
+        const tag = event.tags.find(([name]) => name === tagName);
+        return tag?.[1];
+      };
+
+      // Filter top-level comments (those with lowercase "a" tag matching the NIP addr)
+      const topLevelComments = allComments.filter(comment => {
+        const aTag = getLowercaseTag(comment, 'a');
+        return aTag === addrString;
+      });
+
+      // Helper function to get all descendants of a comment
+      const getDescendants = (parentId: string): NostrEvent[] => {
+        const directReplies = allComments.filter(comment => {
+          const eTag = getLowercaseTag(comment, 'e');
+          return eTag === parentId;
+        });
+
+        const allDescendants = [...directReplies];
+        
+        // Recursively get descendants of each direct reply
+        for (const reply of directReplies) {
+          allDescendants.push(...getDescendants(reply.id));
+        }
+
+        return allDescendants;
+      };
+
+      // Create a map of comment ID to its descendants
+      const commentDescendants = new Map<string, NostrEvent[]>();
+      for (const comment of allComments) {
+        commentDescendants.set(comment.id, getDescendants(comment.id));
+      }
+
+      // Sort top-level comments by creation time (newest first)
+      const sortedTopLevel = topLevelComments.sort((a, b) => b.created_at - a.created_at);
+
+      return {
+        allComments,
+        topLevelComments: sortedTopLevel,
+        getDescendants: (commentId: string) => {
+          const descendants = commentDescendants.get(commentId) || [];
+          // Sort descendants by creation time (oldest first for threaded display)
+          return descendants.sort((a, b) => a.created_at - b.created_at);
+        },
+        getDirectReplies: (commentId: string) => {
+          const directReplies = allComments.filter(comment => {
+            const eTag = getLowercaseTag(comment, 'e');
+            return eTag === commentId;
+          });
+          // Sort direct replies by creation time (oldest first for threaded display)
+          return directReplies.sort((a, b) => a.created_at - b.created_at);
+        }
+      };
     },
     enabled: !!naddr,
-  });
-}
-
-export function useCommentReplies(commentId: string) {
-  const { nostr } = useNostr();
-
-  return useQuery({
-    queryKey: ['comment-replies', commentId],
-    queryFn: async ({ signal }) => {
-      // Query for kind 1111 comments that reply to this comment
-      const replies = await nostr.query(
-        [{
-          kinds: [1111],
-          '#e': [commentId],
-          limit: 50,
-        }],
-        { signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) }
-      );
-
-      // Sort replies by creation time (oldest first for threaded display)
-      return replies.sort((a, b) => a.created_at - b.created_at);
-    },
-    enabled: !!commentId,
   });
 }

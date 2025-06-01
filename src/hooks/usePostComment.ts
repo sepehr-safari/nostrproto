@@ -32,19 +32,17 @@ export function usePostComment() {
       ];
 
       if (parentComment) {
-        // This is a reply to another comment
+        // This is a reply to another comment (nested reply)
+        // Only include lowercase tags for the parent comment, NOT the root content
         tags.push(
-          // Parent comment tags (lowercase)
           ['e', parentComment.id],
           ['k', '1111'],
-          ['p', parentComment.pubkey],
-          // Still reference the root content
-          ['a', addrString]
+          ['p', parentComment.pubkey]
         );
       } else {
         // This is a top-level comment on the NIP
+        // Include lowercase tags that match the root content
         tags.push(
-          // Parent is the same as root for top-level comments
           ['a', addrString],
           ['k', addr.kind.toString()],
           ['p', addr.pubkey]
@@ -59,14 +57,9 @@ export function usePostComment() {
 
       return event;
     },
-    onSuccess: (_, { naddr, parentComment }) => {
-      // Invalidate and refetch comments
+    onSuccess: (_, { naddr }) => {
+      // Invalidate and refetch all comments for this NIP
       queryClient.invalidateQueries({ queryKey: ['nip-comments', naddr] });
-      
-      // If this was a reply, also invalidate the parent comment's replies
-      if (parentComment) {
-        queryClient.invalidateQueries({ queryKey: ['comment-replies', parentComment.id] });
-      }
     },
   });
 }
