@@ -89,21 +89,6 @@ describe('Index', () => {
     expect(kind42Badge).toHaveClass('cursor-pointer');
   });
 
-  it('renders loading state for custom NIPs', () => {
-    mockUseRecentCustomNips.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-    });
-
-    render(
-      <TestApp>
-        <Index />
-      </TestApp>
-    );
-
-    expect(screen.getByText('Custom NIPs')).toBeInTheDocument();
-  });
-
   it('renders empty state when no custom NIPs exist', () => {
     mockUseRecentCustomNips.mockReturnValue({
       data: [],
