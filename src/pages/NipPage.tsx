@@ -147,11 +147,11 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
   );
 }
 
-function ForkInfo({ forkTag }: { forkTag: string }) {
+function ForkInfo({ forkATag }: { forkATag: string }) {
   const { data: forkSourceEvent } = useCustomNip(
     (() => {
       try {
-        const [kind, pubkey, identifier] = forkTag.split(':');
+        const [kind, pubkey, identifier] = forkATag.split(':');
         return nip19.naddrEncode({
           kind: parseInt(kind),
           pubkey,
@@ -165,7 +165,7 @@ function ForkInfo({ forkTag }: { forkTag: string }) {
 
   if (forkSourceEvent) {
     const sourceTitle = forkSourceEvent.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP';
-    const [kind, pubkey, identifier] = forkTag.split(':');
+    const [kind, pubkey, identifier] = forkATag.split(':');
     const sourceNaddr = nip19.naddrEncode({
       kind: parseInt(kind),
       pubkey,
@@ -204,8 +204,8 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
 
   const kinds = event?.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]) || [];
   
-  const forkTag = event?.tags.find(tag => tag[0] === 'fork')?.[1];
-  const isForked = !!forkTag;
+  const forkATag = event?.tags.find(tag => tag[0] === 'a' && tag[3] === 'fork')?.[1];
+  const isForked = !!forkATag;
 
   if (isLoading) {
     return (
@@ -364,8 +364,8 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             </div>
             
             {/* Fork Information */}
-            {isForked && forkTag && (
-              <ForkInfo forkTag={forkTag} />
+            {isForked && forkATag && (
+              <ForkInfo forkATag={forkATag} />
             )}
           </CardHeader>
           <CardContent className="p-8">

@@ -101,10 +101,11 @@ export default function CreateNipPage() {
       ...kinds.map(kind => ['k', kind]),
     ];
 
-    // Add fork tag if this is a fork
+    // Add "a" tag with "fork" marker if this is a fork
     if (forkSource && customForkSource) {
-      // For custom NIPs, use kind:pubkey:d format
-      tags.push(['fork', `${customForkSource.kind}:${customForkSource.pubkey}:${customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || ''}`]);
+      // For custom NIPs, use kind:pubkey:d format with "fork" marker in position 3
+      const dTag = customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || '';
+      tags.push(['a', `${customForkSource.kind}:${customForkSource.pubkey}:${dTag}`, '', 'fork']);
     }
 
     publishEvent(

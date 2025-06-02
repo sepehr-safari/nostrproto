@@ -24,7 +24,7 @@ vi.mock('@/hooks/useCustomNip', () => ({
         ['d', 'test-nip'],
         ['title', 'Test Custom NIP'],
         ['k', '1000'],
-        ['fork', '30817:' + 'b'.repeat(64) + ':source-identifier'],
+        ['a', '30817:' + 'b'.repeat(64) + ':source-identifier', '', 'fork'],
       ],
     },
     isLoading: false,
