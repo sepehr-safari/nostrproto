@@ -207,4 +207,53 @@ describe('CustomNipCard', () => {
     expect(screen.queryByText('someVariable')).not.toBeInTheDocument();
     expect(screen.queryByText('anotherFunction')).not.toBeInTheDocument();
   });
+
+  it('displays fork badge when event is a fork of another custom NIP', () => {
+    const forkedEvent = {
+      ...mockEvent,
+      tags: [
+        ...mockEvent.tags,
+        ['a', '30817:abcd1234:original-nip', '', 'fork'],
+      ],
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={forkedEvent} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('Fork')).toBeInTheDocument();
+    expect(screen.getByText('Custom')).toBeInTheDocument();
+  });
+
+  it('displays fork badge when event is a fork of an official NIP', () => {
+    const forkedEvent = {
+      ...mockEvent,
+      tags: [
+        ...mockEvent.tags,
+        ['i', 'https://github.com/nostr-protocol/nips/blob/master/01.md', 'fork'],
+      ],
+    };
+
+    render(
+      <TestApp>
+        <CustomNipCard event={forkedEvent} />
+      </TestApp>
+    );
+
+    expect(screen.getByText('Fork')).toBeInTheDocument();
+    expect(screen.getByText('Custom')).toBeInTheDocument();
+  });
+
+  it('does not display fork badge when event is not a fork', () => {
+    render(
+      <TestApp>
+        <CustomNipCard event={mockEvent} />
+      </TestApp>
+    );
+
+    expect(screen.queryByText('Fork')).not.toBeInTheDocument();
+    expect(screen.getByText('Custom')).toBeInTheDocument();
+  });
 });

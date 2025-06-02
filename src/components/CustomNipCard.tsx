@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { nip19 } from 'nostr-tools';
 import { NostrEvent } from '@/types/nostr';
 import { genUserName } from '@/lib/genUserName';
+import { GitFork } from 'lucide-react';
 
 /**
  * Extracts the first paragraph from markdown/text content, skipping headers and other elements
@@ -107,6 +108,11 @@ export function CustomNipCard({
   const contentPreview = extractFirstParagraph(event.content, 140);
   const displayName = author.data?.metadata?.name ?? genUserName(event.pubkey);
   
+  // Check if this is a fork
+  const forkATag = event.tags.find((tag: string[]) => tag[0] === 'a' && tag[3] === 'fork')?.[1];
+  const forkITag = event.tags.find((tag: string[]) => tag[0] === 'i' && tag[2] === 'fork')?.[1];
+  const isForked = !!(forkATag || forkITag);
+  
   const naddr = nip19.naddrEncode({
     identifier: dTag,
     pubkey: event.pubkey,
@@ -126,6 +132,12 @@ export function CustomNipCard({
                 <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 text-xs">
                   Custom
                 </Badge>
+                {isForked && (
+                  <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs">
+                    <GitFork className="h-3 w-3 mr-1" />
+                    Fork
+                  </Badge>
+                )}
                 {actions && (
                   <div onClick={(e) => e.stopPropagation()}>
                     {actions}
