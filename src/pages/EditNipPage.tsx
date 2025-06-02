@@ -152,10 +152,24 @@ export default function EditNipPage() {
       return;
     }
 
+    // Preserve fork markers from the original event
+    const forkTags = event.tags.filter((tag: string[]) => {
+      // Fork of custom NIP: ['a', value, ?, 'fork']
+      if (tag[0] === 'a' && tag.length >= 4 && tag[3] === 'fork') {
+        return true;
+      }
+      // Fork of official NIP: ['i', value, 'fork']
+      if (tag[0] === 'i' && tag.length >= 3 && tag[2] === 'fork') {
+        return true;
+      }
+      return false;
+    });
+
     const tags = [
       ['d', identifier.trim()],
       ['title', title.trim()],
       ...kinds.map(kind => ['k', kind]),
+      ...forkTags, // Preserve fork markers
     ];
 
     publishEvent(
