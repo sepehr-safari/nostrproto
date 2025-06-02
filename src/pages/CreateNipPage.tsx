@@ -122,10 +122,13 @@ export default function CreateNipPage() {
       // For custom NIPs, use "a" tag with kind:pubkey:d format and "fork" marker in position 3
       const dTag = customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || '';
       tags.push(['a', `${customForkSource.kind}:${customForkSource.pubkey}:${dTag}`, '', 'fork']);
+      // Add "p" tag to notify the original author of the fork
+      tags.push(['p', customForkSource.pubkey]);
     } else if (officialForkSource) {
       // For official NIPs, use "i" tag with GitHub URL and "fork" marker
       const githubUrl = `https://github.com/nostr-protocol/nips/blob/master/${officialForkSource}.md`;
       tags.push(['i', githubUrl, 'fork']);
+      // Note: We don't add "p" tags for official NIPs as requested
     }
 
     publishEvent(

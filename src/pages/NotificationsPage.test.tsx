@@ -104,7 +104,7 @@ describe('NotificationsPage', () => {
     );
 
     expect(screen.getByText('No notifications yet')).toBeInTheDocument();
-    expect(screen.getByText('When people react to or comment on your custom NIPs, you\'ll see those notifications here.')).toBeInTheDocument();
+    expect(screen.getByText("When people react to, comment on, or fork your custom NIPs, you'll see those notifications here.")).toBeInTheDocument();
     expect(screen.getByText('Create Your First NIP')).toBeInTheDocument();
   });
 
@@ -139,7 +139,7 @@ describe('NotificationsPage', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Notifications' })).toBeInTheDocument();
-    expect(screen.getByText('Reactions and comments on your custom NIPs')).toBeInTheDocument();
+    expect(screen.getByText('Reactions, comments, and forks on your custom NIPs')).toBeInTheDocument();
     // The NotificationItem component should be rendered
     // (we're not testing its internals here, just that it's present)
   });

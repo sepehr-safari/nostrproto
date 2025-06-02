@@ -14,12 +14,21 @@ export function useNotifications() {
       }
 
       const events = await nostr.query(
-        [{
-          kinds: [7, 1111],
-          '#k': ['30817'],
-          '#p': [user.pubkey],
-          limit: 100,
-        }],
+        [
+          // Reactions and comments on user's NIPs
+          {
+            kinds: [7, 1111],
+            '#k': ['30817'],
+            '#p': [user.pubkey],
+            limit: 100,
+          },
+          // Fork notifications - custom NIPs that tag the user
+          {
+            kinds: [30817],
+            '#p': [user.pubkey],
+            limit: 50,
+          }
+        ],
         { signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) }
       );
 

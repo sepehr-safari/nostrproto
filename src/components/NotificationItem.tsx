@@ -7,7 +7,7 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { useNotificationReadState } from '@/hooks/useNotificationReadState';
 import { genUserName } from '@/lib/genUserName';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart, MessageCircle, GitFork } from 'lucide-react';
 import { NostrEvent } from '@/types/nostr';
 import { NoteContent } from '@/components/NoteContent';
 import { nip19 } from 'nostr-tools';
@@ -24,13 +24,16 @@ export function NotificationItem({ event }: NotificationItemProps) {
   const displayName = metadata?.name ?? genUserName(event.pubkey);
   const profileImage = metadata?.picture;
   
-  // Get the referenced NIP from the 'a' tag
-  const aTag = event.tags.find(tag => tag[0] === 'a')?.[1];
-  const nipTitle = getNipTitle(aTag);
-  
   const isReaction = event.kind === 7;
   const isComment = event.kind === 1111;
+  const isFork = event.kind === 30817 && event.tags.some(tag => tag[0] === 'a' && tag[3] === 'fork');
   const isUnread = !isRead(event.id);
+  
+  // Get the referenced NIP from the 'a' tag
+  const aTag = event.tags.find(tag => tag[0] === 'a')?.[1];
+  const nipTitle = isFork 
+    ? event.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled NIP'
+    : getNipTitle(aTag);
   
   const timeAgo = formatDistanceToNow(new Date(event.created_at * 1000), { addSuffix: true });
 
@@ -80,12 +83,19 @@ export function NotificationItem({ event }: NotificationItemProps) {
                   Commented
                 </Badge>
               )}
+              {isFork && (
+                <Badge variant="secondary" className="text-xs bg-orange-500/10 text-orange-500 border-orange-500/20">
+                  <GitFork className="h-3 w-3 mr-1" />
+                  Forked
+                </Badge>
+              )}
               <span className="text-xs text-muted-foreground">{timeAgo}</span>
             </div>
             
             <div className="text-sm text-muted-foreground mb-2">
               {isReaction && 'liked your NIP'}
               {isComment && 'commented on your NIP'}
+              {isFork && 'forked your NIP'}
               {nipTitle && (
                 <span className="font-medium text-foreground">
                   {' "'}
@@ -101,10 +111,10 @@ export function NotificationItem({ event }: NotificationItemProps) {
               </div>
             )}
             
-            {aTag && (
+            {(aTag || isFork) && (
               <div className="mt-2">
                 <Link 
-                  to={`/${createNaddrFromATag(aTag)}`}
+                  to={isFork ? `/${createNaddrFromEvent(event)}` : `/${createNaddrFromATag(aTag!)}`}
                   className="text-xs text-primary hover:underline"
                 >
                   View NIP →
@@ -151,4 +161,23 @@ function createNaddrFromATag(aTag: string): string {
   }
   
   return aTag;
+}
+
+function createNaddrFromEvent(event: NostrEvent): string {
+  const identifier = event.tags.find(tag => tag[0] === 'd')?.[1];
+  
+  if (identifier) {
+    try {
+      return nip19.naddrEncode({
+        identifier,
+        pubkey: event.pubkey,
+        kind: event.kind,
+      });
+    } catch (error) {
+      console.warn('Failed to encode naddr from event:', error);
+      return event.id;
+    }
+  }
+  
+  return event.id;
 }

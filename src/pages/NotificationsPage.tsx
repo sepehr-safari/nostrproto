@@ -80,7 +80,7 @@ export default function NotificationsPage() {
             )}
           </div>
           <p className="text-muted-foreground">
-            Reactions and comments on your custom NIPs
+            Reactions, comments, and forks on your custom NIPs
           </p>
 
           {isLoading ? (
@@ -123,7 +123,7 @@ export default function NotificationsPage() {
                 <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">No notifications yet</h3>
                 <p className="text-muted-foreground mb-4">
-                  When people react to or comment on your custom NIPs, you'll see those notifications here.
+                  When people react to, comment on, or fork your custom NIPs, you'll see those notifications here.
                 </p>
                 <Button asChild>
                   <Link to="/create">
