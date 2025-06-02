@@ -266,7 +266,7 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
               Back to Home
             </Link>
           </Button>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+          <div className="flex items-stretch sm:items-center gap-2 sm:space-x-2">
             {isOwner ? (
               <Button asChild size="sm" className="sm:size-default">
                 <Link to={`/edit/${naddr}`}>
