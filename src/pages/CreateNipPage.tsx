@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout';
 import { KindInput } from '@/components/KindInput';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCustomNip } from '@/hooks/useCustomNip';
+import { useOfficialNip } from '@/hooks/useOfficialNip';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ export default function CreateNipPage() {
 
   // Get fork parameters from URL
   const forkParam = searchParams.get('fork');
+  const officialForkParam = searchParams.get('officialFork');
   
   const [title, setTitle] = useState('');
   const [identifier, setIdentifier] = useState('');
@@ -33,9 +35,11 @@ export default function CreateNipPage() {
   const [kinds, setKinds] = useState<string[]>([]);
   const [identifierManuallyEdited, setIdentifierManuallyEdited] = useState(false);
   const [forkSource, setForkSource] = useState<string | null>(forkParam);
+  const [officialForkSource, setOfficialForkSource] = useState<string | null>(officialForkParam);
 
   // Load fork source data
   const { data: customForkSource } = useCustomNip(forkParam ?? '');
+  const { data: officialForkSourceData } = useOfficialNip(officialForkParam ?? '');
 
   // Auto-generate identifier from title
   useEffect(() => {
@@ -49,7 +53,10 @@ export default function CreateNipPage() {
     if (forkParam) {
       setForkSource(forkParam);
     }
-  }, [forkParam]);
+    if (officialForkParam) {
+      setOfficialForkSource(officialForkParam);
+    }
+  }, [forkParam, officialForkParam]);
 
   // Pre-fill form when forking
   useEffect(() => {
@@ -60,8 +67,17 @@ export default function CreateNipPage() {
       setTitle(titleTag);
       setContent(customForkSource.content);
       setKinds(kindTags);
+    } else if (officialForkSource && officialForkSourceData) {
+      // Extract title from the first line of the markdown content
+      const lines = officialForkSourceData.content.split('\n');
+      const titleLine = lines.find(line => line.startsWith('# '));
+      const extractedTitle = titleLine ? titleLine.replace('# ', '').trim() : `NIP-${officialForkSource}`;
+      
+      setTitle(extractedTitle);
+      setContent(officialForkSourceData.content);
+      setKinds([]); // Official NIPs don't have specific kinds in the same way
     }
-  }, [forkSource, customForkSource]);
+  }, [forkSource, customForkSource, officialForkSource, officialForkSourceData]);
 
   if (!user) {
     return (
@@ -101,11 +117,15 @@ export default function CreateNipPage() {
       ...kinds.map(kind => ['k', kind]),
     ];
 
-    // Add "a" tag with "fork" marker if this is a fork
+    // Add fork tags based on the type of source
     if (forkSource && customForkSource) {
-      // For custom NIPs, use kind:pubkey:d format with "fork" marker in position 3
+      // For custom NIPs, use "a" tag with kind:pubkey:d format and "fork" marker in position 3
       const dTag = customForkSource.tags.find(tag => tag[0] === 'd')?.[1] || '';
       tags.push(['a', `${customForkSource.kind}:${customForkSource.pubkey}:${dTag}`, '', 'fork']);
+    } else if (officialForkSource) {
+      // For official NIPs, use "i" tag with GitHub URL and "fork" marker
+      const githubUrl = `https://github.com/nostr-protocol/nips/blob/master/${officialForkSource}.md`;
+      tags.push(['i', githubUrl, 'fork']);
     }
 
     publishEvent(
@@ -148,7 +168,7 @@ export default function CreateNipPage() {
             <CardTitle className="flex items-center gap-2">
               Create Custom NIP
             </CardTitle>
-            {forkSource && (
+            {(forkSource || officialForkSource) && (
               <div className="pt-4">
                 <Alert className="p-0">
                   <div className="flex items-center space-x-2">
@@ -156,9 +176,14 @@ export default function CreateNipPage() {
                     <AlertDescription className="flex items-center justify-between space-between w-full">
                       <span>
                         Fork of
-                        {customForkSource && (
+                        {forkSource && customForkSource && (
                           <span className="ml-1 font-bold">
                             {customForkSource.tags.find(tag => tag[0] === 'title')?.[1] || 'Untitled'}
+                          </span>
+                        )}
+                        {officialForkSource && (
+                          <span className="ml-1 font-bold">
+                            NIP-{officialForkSource}
                           </span>
                         )}
                       </span>
@@ -169,9 +194,11 @@ export default function CreateNipPage() {
                         size="sm"
                         onClick={() => {
                           setForkSource(null);
+                          setOfficialForkSource(null);
                           // Clear the URL params
                           const newUrl = new URL(window.location.href);
                           newUrl.searchParams.delete('fork');
+                          newUrl.searchParams.delete('officialFork');
                           window.history.replaceState({}, '', newUrl.toString());
                         }}
                       >

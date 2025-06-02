@@ -116,6 +116,13 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
+              <Link to={`/create?officialFork=${nipNumber}`}>
+                <GitFork className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Fork NIP</span>
+                <span className="sm:hidden">Fork</span>
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
               <a
                 href={`https://github.com/nostr-protocol/nips/blob/master/${nipNumber}.md`}
                 target="_blank"
@@ -191,6 +198,38 @@ function ForkInfo({ forkATag }: { forkATag: string }) {
   return null;
 }
 
+function OfficialForkInfo({ forkITag }: { forkITag: string }) {
+  // Extract NIP number from GitHub URL
+  const nipNumber = forkITag.match(/\/(\d+)\.md$/)?.[1];
+  
+  if (nipNumber) {
+    return (
+      <div className="pt-6 !mt-5 border-t border-white/10">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <GitFork className="h-4 w-4" />
+          <span>Fork of</span>
+          <Link 
+            to={`/nip/${nipNumber}`}
+            className="text-primary hover:text-primary/80 transition-colors font-medium"
+          >
+            NIP-{nipNumber}
+          </Link>
+          <a
+            href={forkITag}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -205,7 +244,8 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
   const kinds = event?.tags.filter(tag => tag[0] === 'k').map(tag => tag[1]) || [];
   
   const forkATag = event?.tags.find(tag => tag[0] === 'a' && tag[3] === 'fork')?.[1];
-  const isForked = !!forkATag;
+  const forkITag = event?.tags.find(tag => tag[0] === 'i' && tag[2] === 'fork')?.[1];
+  const isForked = !!(forkATag || forkITag);
 
   if (isLoading) {
     return (
@@ -366,6 +406,9 @@ function CustomNipView({ naddr, user }: { naddr: string; user: any }) {
             {/* Fork Information */}
             {isForked && forkATag && (
               <ForkInfo forkATag={forkATag} />
+            )}
+            {isForked && forkITag && (
+              <OfficialForkInfo forkITag={forkITag} />
             )}
           </CardHeader>
           <CardContent className="p-8">

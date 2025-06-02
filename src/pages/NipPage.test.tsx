@@ -14,22 +14,42 @@ vi.mock('@/hooks/useCurrentUser', () => ({
 }));
 
 vi.mock('@/hooks/useCustomNip', () => ({
-  useCustomNip: () => ({
-    data: {
-      kind: 30817,
-      pubkey: 'a'.repeat(64), // Valid 64-character hex string
-      content: 'Custom NIP content',
-      created_at: 1234567890,
-      tags: [
-        ['d', 'test-nip'],
-        ['title', 'Test Custom NIP'],
-        ['k', '1000'],
-        ['a', '30817:' + 'b'.repeat(64) + ':source-identifier', '', 'fork'],
-      ],
-    },
-    isLoading: false,
-    error: null,
-  }),
+  useCustomNip: (naddr: string) => {
+    if (naddr === 'test-naddr-official-fork') {
+      return {
+        data: {
+          kind: 30817,
+          pubkey: 'a'.repeat(64),
+          content: 'Custom NIP content forked from official',
+          created_at: 1234567890,
+          tags: [
+            ['d', 'test-official-fork'],
+            ['title', 'Test Official Fork NIP'],
+            ['k', '1000'],
+            ['i', 'https://github.com/nostr-protocol/nips/blob/master/01.md', 'fork'],
+          ],
+        },
+        isLoading: false,
+        error: null,
+      };
+    }
+    return {
+      data: {
+        kind: 30817,
+        pubkey: 'a'.repeat(64), // Valid 64-character hex string
+        content: 'Custom NIP content',
+        created_at: 1234567890,
+        tags: [
+          ['d', 'test-nip'],
+          ['title', 'Test Custom NIP'],
+          ['k', '1000'],
+          ['a', '30817:' + 'b'.repeat(64) + ':source-identifier', '', 'fork'],
+        ],
+      },
+      isLoading: false,
+      error: null,
+    };
+  },
 }));
 
 vi.mock('@/hooks/useOfficialNip', () => ({
@@ -66,7 +86,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('NipPage', () => {
-  it('renders official NIP with GitHub link', () => {
+  it('renders official NIP with GitHub link and fork button', () => {
     render(
       <TestApp>
         <NipPage nipId="01" isOfficialNip={true} />
@@ -75,6 +95,7 @@ describe('NipPage', () => {
 
     expect(screen.getByText('NIP-01')).toBeInTheDocument();
     expect(screen.getByText('View on GitHub')).toBeInTheDocument();
+    expect(screen.getByText('Fork NIP')).toBeInTheDocument();
     expect(screen.getByText('Official Protocol')).toBeInTheDocument();
   });
 
@@ -112,5 +133,17 @@ describe('NipPage', () => {
     // The fork option should be in the dropdown menu
     const forkLinks = screen.getAllByText('Fork NIP');
     expect(forkLinks.length).toBeGreaterThan(0);
+  });
+
+  it('shows official fork information for NIPs forked from official NIPs', () => {
+    render(
+      <TestApp>
+        <NipPage nipId="test-naddr-official-fork" isOfficialNip={false} />
+      </TestApp>
+    );
+
+    expect(screen.getByRole('heading', { name: 'Test Official Fork NIP' })).toBeInTheDocument();
+    expect(screen.getByText('Fork of')).toBeInTheDocument();
+    expect(screen.getByText('NIP-01')).toBeInTheDocument();
   });
 });
