@@ -214,14 +214,6 @@ function OfficialForkInfo({ forkITag }: { forkITag: string }) {
           >
             NIP-{nipNumber}
           </Link>
-          <a
-            href={forkITag}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ExternalLink className="h-3 w-3" />
-          </a>
         </div>
       </div>
     );
