@@ -63,6 +63,12 @@ vi.mock('@/hooks/useOfficialNip', () => ({
   }),
 }));
 
+vi.mock('@/components/OfficialNipCommentsSection', () => ({
+  OfficialNipCommentsSection: ({ nipNumber }: { nipNumber: string }) => (
+    <div data-testid="official-nip-comments">Comments for NIP {nipNumber}</div>
+  ),
+}));
+
 vi.mock('@/hooks/useAuthor', () => ({
   useAuthor: () => ({
     data: {
@@ -97,6 +103,8 @@ describe('NipPage', () => {
     expect(screen.getByText('View on GitHub')).toBeInTheDocument();
     expect(screen.getByText('Fork NIP')).toBeInTheDocument();
     expect(screen.getByText('Official Protocol')).toBeInTheDocument();
+    expect(screen.getByTestId('official-nip-comments')).toBeInTheDocument();
+    expect(screen.getByText('Comments for NIP 01')).toBeInTheDocument();
   });
 
   it('renders custom NIP with fork badge when forked', () => {

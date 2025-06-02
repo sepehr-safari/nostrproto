@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { DeleteNipDialog } from '@/components/DeleteNipDialog';
 import { CommentsSection } from '@/components/CommentsSection';
+import { OfficialNipCommentsSection } from '@/components/OfficialNipCommentsSection';
 import { LikeButton } from '@/components/LikeButton';
 import { EventSourceDialog } from '@/components/EventSourceDialog';
 import { useOfficialNip } from '@/hooks/useOfficialNip';
@@ -149,6 +150,9 @@ function OfficialNipView({ nipNumber }: { nipNumber: string }) {
             <MarkdownRenderer content={data!.content} />
           </CardContent>
         </Card>
+
+        {/* Comments Section */}
+        <OfficialNipCommentsSection nipNumber={nipNumber} />
       </div>
     </Layout>
   );
