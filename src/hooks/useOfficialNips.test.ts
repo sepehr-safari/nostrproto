@@ -1,12 +1,17 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useOfficialNips } from './useOfficialNips';
 import { renderHook, waitFor } from '@testing-library/react';
 import { TestApp } from '@/test/TestApp';
 
 // Mock fetch
-global.fetch = vi.fn();
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe('useOfficialNips', () => {
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
+
   it('should parse deprecated flag for both "deprecated" and "unrecommended" text', async () => {
     const mockReadmeContent = `
 # NIPs
@@ -18,7 +23,7 @@ describe('useOfficialNips', () => {
 - [NIP-05: Mapping Nostr keys to DNS-based internet identifiers](05.md)
 `;
 
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    mockFetch.mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(mockReadmeContent),
     });
@@ -28,8 +33,10 @@ describe('useOfficialNips', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.data).toBeDefined();
+      expect(result.current.isSuccess).toBe(true);
     });
+
+    expect(result.current.data).toBeDefined();
 
     const nips = result.current.data!;
     

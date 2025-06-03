@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { TestApp } from '@/test/TestApp';
 import { useOfficialNipComments } from './useOfficialNipComments';
@@ -18,6 +18,10 @@ vi.mock('@nostrify/react', async (importOriginal) => {
 });
 
 describe('useOfficialNipComments', () => {
+  beforeEach(() => {
+    mockQuery.mockClear();
+  });
+
   it('queries for comments with correct I tag filter', async () => {
     const nipNumber = '01';
     const expectedGithubUrl = 'https://github.com/nostr-protocol/nips/blob/master/01.md';
@@ -81,7 +85,15 @@ describe('useOfficialNipComments', () => {
       },
     ];
 
-    mockQuery.mockResolvedValueOnce(mockComments).mockResolvedValueOnce([]); // comments, then deletions
+    // Mock the first call (comments) and second call (deletions)
+    mockQuery.mockImplementation((filters) => {
+      if (filters[0].kinds[0] === 1111) {
+        return Promise.resolve(mockComments);
+      } else if (filters[0].kinds[0] === 5) {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve([]);
+    });
 
     const { result } = renderHook(
       () => useOfficialNipComments(nipNumber),
