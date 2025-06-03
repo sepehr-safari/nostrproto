@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown, Wifi } from "lucide-react";
+import { Check, ChevronsUpDown, Wifi, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,8 +24,48 @@ interface RelaySelectorProps {
 export function RelaySelector({ className }: RelaySelectorProps) {
   const { config, updateConfig, availableRelays } = useAppConfig();
   const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const selectedOption = availableRelays.find((option) => option.url === config.relayUrl);
+
+  // Function to normalize relay URL by adding wss:// if no protocol is present
+  const normalizeRelayUrl = (url: string): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return trimmed;
+    
+    // Check if it already has a protocol
+    if (trimmed.includes('://')) {
+      return trimmed;
+    }
+    
+    // Add wss:// prefix
+    return `wss://${trimmed}`;
+  };
+
+  // Handle adding a custom relay
+  const handleAddCustomRelay = (url: string) => {
+    const normalizedUrl = normalizeRelayUrl(url);
+    if (normalizedUrl) {
+      updateConfig("relayUrl", normalizedUrl);
+      setOpen(false);
+      setInputValue("");
+    }
+  };
+
+  // Check if input value looks like a valid relay URL
+  const isValidRelayInput = (value: string): boolean => {
+    const trimmed = value.trim();
+    if (!trimmed) return false;
+    
+    // Basic validation - should contain at least a domain-like structure
+    const normalized = normalizeRelayUrl(trimmed);
+    try {
+      new URL(normalized);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -39,7 +79,12 @@ export function RelaySelector({ className }: RelaySelectorProps) {
           <div className="flex items-center gap-2">
             <Wifi className="h-4 w-4" />
             <span className="truncate">
-              {selectedOption ? selectedOption.name : "Select relay..."}
+              {selectedOption 
+                ? selectedOption.name 
+                : config.relayUrl 
+                  ? config.relayUrl.replace(/^wss?:\/\//, '')
+                  : "Select relay..."
+              }
             </span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -47,31 +92,75 @@ export function RelaySelector({ className }: RelaySelectorProps) {
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Search relays..." />
+          <CommandInput 
+            placeholder="Search relays or type URL..." 
+            value={inputValue}
+            onValueChange={setInputValue}
+          />
           <CommandList>
-            <CommandEmpty>No relay found.</CommandEmpty>
-            <CommandGroup>
-              {availableRelays.map((option) => (
+            <CommandEmpty>
+              {inputValue && isValidRelayInput(inputValue) ? (
                 <CommandItem
-                  key={option.url}
-                  value={option.url}
-                  onSelect={(currentValue) => {
-                    updateConfig("relayUrl", currentValue);
-                    setOpen(false);
-                  }}
+                  onSelect={() => handleAddCustomRelay(inputValue)}
+                  className="cursor-pointer"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      config.relayUrl === option.url ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <Plus className="mr-2 h-4 w-4" />
                   <div className="flex flex-col">
-                    <span className="font-medium">{option.name}</span>
-                    <span className="text-xs text-muted-foreground">{option.url}</span>
+                    <span className="font-medium">Add custom relay</span>
+                    <span className="text-xs text-muted-foreground">
+                      {normalizeRelayUrl(inputValue)}
+                    </span>
                   </div>
                 </CommandItem>
-              ))}
+              ) : (
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  {inputValue ? "Invalid relay URL" : "No relay found."}
+                </div>
+              )}
+            </CommandEmpty>
+            <CommandGroup>
+              {availableRelays
+                .filter((option) => 
+                  !inputValue || 
+                  option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+                  option.url.toLowerCase().includes(inputValue.toLowerCase())
+                )
+                .map((option) => (
+                  <CommandItem
+                    key={option.url}
+                    value={option.url}
+                    onSelect={(currentValue) => {
+                      updateConfig("relayUrl", currentValue);
+                      setOpen(false);
+                      setInputValue("");
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        config.relayUrl === option.url ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{option.name}</span>
+                      <span className="text-xs text-muted-foreground">{option.url}</span>
+                    </div>
+                  </CommandItem>
+                ))}
+              {inputValue && isValidRelayInput(inputValue) && (
+                <CommandItem
+                  onSelect={() => handleAddCustomRelay(inputValue)}
+                  className="cursor-pointer border-t"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Add custom relay</span>
+                    <span className="text-xs text-muted-foreground">
+                      {normalizeRelayUrl(inputValue)}
+                    </span>
+                  </div>
+                </CommandItem>
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

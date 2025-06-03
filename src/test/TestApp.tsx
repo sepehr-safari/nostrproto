@@ -18,15 +18,15 @@ export function TestApp({ children }: TestAppProps) {
 
   return (
     <BrowserRouter>
-      <NostrLoginProvider storageKey='test-login'>
-        <AppProvider>
-          <NostrProvider relays={['wss://relay.example.com']}>
-            <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <QueryClientProvider client={queryClient}>
+          <NostrLoginProvider storageKey='test-login'>
+            <NostrProvider>
               {children}
-            </QueryClientProvider>
-          </NostrProvider>
-        </AppProvider>
-      </NostrLoginProvider>
+            </NostrProvider>
+          </NostrLoginProvider>
+        </QueryClientProvider>
+      </AppProvider>
     </BrowserRouter>
   );
 }
