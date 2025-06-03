@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Footer } from "@/components/Footer";
+import { RelaySelector } from "@/components/RelaySelector";
 import { BookOpen, Plus, User, Zap, Menu, Bell } from "lucide-react";
 import { NotificationCounter } from "@/components/NotificationCounter";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -57,6 +58,7 @@ export function Layout({ children }: LayoutProps) {
                   <NotificationCounter />
                 </Link>
               </Button>
+              <RelaySelector className="w-[200px]" />
               <div className="ml-4">
                 <LoginArea />
               </div>
@@ -107,6 +109,10 @@ export function Layout({ children }: LayoutProps) {
                         Browse NIPs
                       </Link>
                     </Button>
+                    <div className="pt-2">
+                      <div className="text-sm text-muted-foreground mb-2 px-3">Relay</div>
+                      <RelaySelector className="w-full" />
+                    </div>
                   </nav>
                 </SheetContent>
               </Sheet>
