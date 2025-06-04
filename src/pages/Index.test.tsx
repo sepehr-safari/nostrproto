@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { TestApp } from '@/test/TestApp';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Index from './Index';
 
 // Mock the hooks
@@ -16,9 +16,9 @@ vi.mock('@/hooks/useAuthor', () => ({
   useAuthor: vi.fn(),
 }));
 
-import { useRecentCustomNips } from '@/hooks/useRecentCustomNips';
-import { useOfficialNips } from '@/hooks/useOfficialNips';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useOfficialNips } from '@/hooks/useOfficialNips';
+import { useRecentCustomNips } from '@/hooks/useRecentCustomNips';
 
 const mockUseRecentCustomNips = useRecentCustomNips as ReturnType<typeof vi.fn>;
 const mockUseOfficialNips = useOfficialNips as ReturnType<typeof vi.fn>;
@@ -82,7 +82,7 @@ describe('Index', () => {
     // Check that kind badges are rendered as clickable elements
     const kind1Badge = screen.getByText('1');
     const kind42Badge = screen.getByText('42');
-    
+
     expect(kind1Badge).toBeInTheDocument();
     expect(kind42Badge).toBeInTheDocument();
     expect(kind1Badge).toHaveClass('cursor-pointer');
@@ -101,7 +101,9 @@ describe('Index', () => {
       </TestApp>
     );
 
-    expect(screen.getByText('No custom NIPs found. Be the first to create one!')).toBeInTheDocument();
+    expect(
+      screen.getByText('No custom NIPs found. Be the first to create one!')
+    ).toBeInTheDocument();
   });
 
   it('filters custom NIPs based on search term', () => {
@@ -209,5 +211,97 @@ describe('Index', () => {
 
     expect(screen.getByText('No custom NIPs found matching your search.')).toBeInTheDocument();
     expect(screen.queryByText('Test NIP')).not.toBeInTheDocument();
+  });
+
+  it('filters official NIPs based on various search term formats', () => {
+    mockUseOfficialNips.mockReturnValue({
+      data: [
+        {
+          number: '01',
+          title: 'Basic protocol flow description',
+          deprecated: false,
+        },
+        {
+          number: 'B0',
+          title: 'Custom NIP format',
+          deprecated: false,
+        },
+        {
+          number: '29',
+          title: 'Relay Information Document',
+          deprecated: false,
+        },
+      ],
+      isLoading: false,
+      error: null,
+    });
+
+    mockUseRecentCustomNips.mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
+
+    render(
+      <TestApp>
+        <Index />
+      </TestApp>
+    );
+
+    const searchInput = screen.getByPlaceholderText('Search the protocol universe...');
+
+    // Test with "NIP-01" format
+    fireEvent.change(searchInput, { target: { value: 'NIP-01' } });
+    expect(screen.getByText('NIP-01')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with "nip-01" format (lowercase)
+    fireEvent.change(searchInput, { target: { value: 'nip-01' } });
+    expect(screen.getByText('NIP-01')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with "NIP01" format (no hyphen)
+    fireEvent.change(searchInput, { target: { value: 'NIP01' } });
+    expect(screen.getByText('NIP-01')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with "B0" format
+    fireEvent.change(searchInput, { target: { value: 'B0' } });
+    expect(screen.queryByText('NIP-01')).not.toBeInTheDocument();
+    expect(screen.getByText('NIP-B0')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with "nipb0" format (no hyphen, lowercase)
+    fireEvent.change(searchInput, { target: { value: 'nipb0' } });
+    expect(screen.queryByText('NIP-01')).not.toBeInTheDocument();
+    expect(screen.getByText('NIP-B0')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with "29" format
+    fireEvent.change(searchInput, { target: { value: '29' } });
+    expect(screen.queryByText('NIP-01')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.getByText('NIP-29')).toBeInTheDocument();
+
+    // Test with "nip29" format (no hyphen, lowercase)
+    fireEvent.change(searchInput, { target: { value: 'nip29' } });
+    expect(screen.queryByText('NIP-01')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.getByText('NIP-29')).toBeInTheDocument();
+
+    // Test with title search
+    fireEvent.change(searchInput, { target: { value: 'protocol flow' } });
+    expect(screen.getByText('NIP-01')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
+
+    // Test with no results
+    fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
+    expect(screen.getByText('No NIPs found matching your search.')).toBeInTheDocument();
+    expect(screen.queryByText('NIP-01')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-B0')).not.toBeInTheDocument();
+    expect(screen.queryByText('NIP-29')).not.toBeInTheDocument();
   });
 });
