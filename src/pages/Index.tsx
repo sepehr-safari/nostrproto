@@ -1,44 +1,55 @@
-import { Link } from 'react-router-dom';
-import { Layout } from '@/components/Layout';
 import { CustomNipCard } from '@/components/CustomNipCard';
-import { useRecentCustomNips } from '@/hooks/useRecentCustomNips';
-import { useOfficialNips } from '@/hooks/useOfficialNips';
-import { Card, CardContent } from '@/components/ui/card';
+import { Layout } from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import { Search, BookOpen, Users, Plus, AlertTriangle } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import type { CarouselApi } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useOfficialNips } from '@/hooks/useOfficialNips';
+import { useRecentCustomNips } from '@/hooks/useRecentCustomNips';
+import { AlertTriangle, BookOpen, Plus, Search, Users } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const carouselRef = useRef<HTMLDivElement>(null);
   const { data: recentNips, isLoading: isLoadingRecent } = useRecentCustomNips();
-  const { data: officialNips, isLoading: isLoadingOfficial, error: officialNipsError } = useOfficialNips();
+  const {
+    data: officialNips,
+    isLoading: isLoadingOfficial,
+    error: officialNipsError,
+  } = useOfficialNips();
 
-  const filteredOfficialNips = (officialNips || []).filter(
-    nip => 
-      nip.number.includes(searchTerm) || 
+  const filteredOfficialNips = (officialNips || []).filter((nip) => {
+    const nipIdentifier = `NIP-${nip.number}`;
+    const normalizedNip = nipIdentifier.toLowerCase().replace('-', '');
+    const normalizedSearch = searchTerm.toLowerCase().replace('-', '');
+
+    return (
+      normalizedNip.includes(normalizedSearch) ||
       nip.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    );
+  });
 
-  const filteredCustomNips = (recentNips || []).filter(event => {
+  const filteredCustomNips = (recentNips || []).filter((event) => {
     if (!searchTerm) return true;
-    
+
     const title = event.tags.find((tag: string[]) => tag[0] === 'title')?.[1] || '';
-    const kinds = event.tags.filter((tag: string[]) => tag[0] === 'k').map((tag: string[]) => tag[1]);
+    const kinds = event.tags
+      .filter((tag: string[]) => tag[0] === 'k')
+      .map((tag: string[]) => tag[1]);
     const content = event.content || '';
-    
+
     const searchLower = searchTerm.toLowerCase();
-    
+
     return (
       title.toLowerCase().includes(searchLower) ||
       content.toLowerCase().includes(searchLower) ||
-      kinds.some(kind => kind.includes(searchTerm))
+      kinds.some((kind) => kind.includes(searchTerm))
     );
   });
 
@@ -68,7 +79,7 @@ const Index = () => {
     };
 
     carouselElement.addEventListener('wheel', handleWheel, { passive: false });
-    
+
     return () => {
       carouselElement.removeEventListener('wheel', handleWheel);
     };
@@ -84,8 +95,23 @@ const Index = () => {
               NIPs on Nostr
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
-              Discover <a href="https://github.com/nostr-protocol/nips" className="text-primary font-semibold" target="_blank">Official NIPs</a> and publish your own
-              <Link to="/naddr1qvzqqqrcvypzqprpljlvcnpnw3pejvkkhrc3y6wvmd7vjuad0fg2ud3dky66gaxaqqxku6tswvkk7m3ddehhxarjqk4nmy" className="text-accent font-semibold"> Custom NIPs</Link> on Nostr.
+              Discover{' '}
+              <a
+                href="https://github.com/nostr-protocol/nips"
+                className="text-primary font-semibold"
+                target="_blank"
+              >
+                Official NIPs
+              </a>{' '}
+              and publish your own
+              <Link
+                to="/naddr1qvzqqqrcvypzqprpljlvcnpnw3pejvkkhrc3y6wvmd7vjuad0fg2ud3dky66gaxaqqxku6tswvkk7m3ddehhxarjqk4nmy"
+                className="text-accent font-semibold"
+              >
+                {' '}
+                Custom NIPs
+              </Link>{' '}
+              on Nostr.
             </p>
           </div>
         </div>
@@ -113,7 +139,7 @@ const Index = () => {
               <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Official NIPs</h2>
             </div>
           </div>
-          
+
           {isLoadingOfficial ? (
             <div className="flex space-x-4 overflow-hidden">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -140,7 +166,7 @@ const Index = () => {
             <div ref={carouselRef} className="overflow-hidden">
               <Carousel
                 opts={{
-                  align: "start",
+                  align: 'start',
                   loop: false,
                   dragFree: true,
                   containScroll: false,
@@ -150,19 +176,33 @@ const Index = () => {
               >
                 <CarouselContent className="-ml-2 md:-ml-4 mr-8">
                   {filteredOfficialNips.map((nip) => (
-                    <CarouselItem key={nip.number} className="pl-2 md:pl-4 basis-[85%] sm:basis-[45%] lg:basis-[30%] xl:basis-[23%]">
+                    <CarouselItem
+                      key={nip.number}
+                      className="pl-2 md:pl-4 basis-[85%] sm:basis-[45%] lg:basis-[30%] xl:basis-[23%]"
+                    >
                       <Link to={`/${nip.number}`} className="block h-full">
                         <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group h-full">
                           <CardContent className="p-4">
                             <div className="flex flex-col justify-between h-full">
                               <div className="space-y-1 flex-1">
-                                <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">NIP-{nip.number}</h3>
-                                <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2">{nip.title}</p>
+                                <h3 className="font-semibold text-primary group-hover:text-accent transition-colors">
+                                  NIP-{nip.number}
+                                </h3>
+                                <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2">
+                                  {nip.title}
+                                </p>
                               </div>
                               <div className="flex flex-wrap gap-1 mt-3">
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">Official</Badge>
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-primary/10 text-primary border-primary/20 text-xs"
+                                >
+                                  Official
+                                </Badge>
                                 {nip.deprecated && (
-                                  <Badge variant="destructive" className="text-xs">Deprecated</Badge>
+                                  <Badge variant="destructive" className="text-xs">
+                                    Deprecated
+                                  </Badge>
                                 )}
                               </div>
                             </div>
@@ -198,7 +238,7 @@ const Index = () => {
               </Link>
             </Button>
           </div>
-          
+
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {isLoadingRecent ? (
               Array.from({ length: 6 }).map((_, i) => (
@@ -216,9 +256,7 @@ const Index = () => {
                 </Card>
               ))
             ) : filteredCustomNips && filteredCustomNips.length > 0 ? (
-              filteredCustomNips.map((event) => (
-                <CustomNipCard key={event.id} event={event} />
-              ))
+              filteredCustomNips.map((event) => <CustomNipCard key={event.id} event={event} />)
             ) : recentNips && recentNips.length > 0 && searchTerm ? (
               <div className="col-span-full">
                 <Card>
@@ -242,7 +280,5 @@ const Index = () => {
     </Layout>
   );
 };
-
-
 
 export default Index;
